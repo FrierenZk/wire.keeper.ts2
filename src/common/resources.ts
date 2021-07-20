@@ -1,5 +1,5 @@
 import {readdirSync, readFileSync} from 'fs'
-import {prefixPath} from "./path";
+import {mkdirIfNotExist, prefixPath} from "./path";
 import {app} from "electron";
 
 let stringMap: Map<string, Map<string, string>> = new Map()
@@ -18,6 +18,8 @@ if (app) {
         language = navigator.language
     console.log(language)
 }
+
+mkdirIfNotExist('./data/lang')
 
 readdirSync(prefixPath('./data/lang'),).forEach(value => {
     if (value.endsWith('.json')) langs.push(value.replace('.json', ''))
