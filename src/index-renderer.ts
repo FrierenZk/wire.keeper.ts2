@@ -1,4 +1,5 @@
 import {Sidebar} from "./ui/sidebar";
+import {Tooltip} from "_@types_bootstrap@5.0.17@@types/bootstrap";
 
 document.getElementById('tail_script')?.remove()
 
@@ -14,3 +15,8 @@ let sideBar = document.createElement('div')
 sideBar.className = 'side-bar mh-100 bg-white flex-column'
 main.appendChild(sideBar)
 sideBar.appendChild(new Sidebar().createFragment())
+
+let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+tooltipTriggerList.map((tooltipTriggerEl) => {
+    return new Tooltip(tooltipTriggerEl)
+});
