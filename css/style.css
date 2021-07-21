@@ -68,6 +68,8 @@ main {
     padding: 0 0;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     margin: 0 0.5rem;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
 }
 
@@ -82,10 +84,38 @@ main {
 }
 
 .sidebar-btn:focus > svg {
-    margin-top: -70%;
 }
 
 .sidebar-btn > svg {
     position: relative;
-    margin-top: -50%;
+}
+
+.sidebar-search-label {
+    align-items: center;
+    padding: 0.5rem;
+    position: relative;
+}
+
+.sidebar-search-input {
+    margin-right: 0.5rem;
+    text-overflow: ellipsis;
+}
+
+.sidebar-search-btn {
+    width: 1rem !important;
+    height: 1rem !important;
+    margin: 0 0.25rem 0 0 !important;
+}
+
+.sidebar-search-filter {
+    display: flex;
+    font-size: 0.75rem;
+    position: relative;
+    padding: .5rem 1rem .5rem 1rem;
+    justify-content: flex-end;
+    align-items: center;
+    color: #084298;
+    background-color: #cfe2ff;
+    border-color: #b6d4fe;
+    border-radius: .25rem;
 }
