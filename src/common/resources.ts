@@ -38,7 +38,11 @@ function loadLang(lang: string) {
     }
 }
 
-loadLang('en-US')
+try {
+    loadLang('en-US')
+} catch (e) {
+    console.error(e)
+}
 
 function withWarn(id: string, warn: string): string {
     console.warn(warn)
