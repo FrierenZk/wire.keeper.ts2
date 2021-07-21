@@ -1,5 +1,5 @@
 import {Sidebar} from "./ui/sidebar";
-import {Tooltip} from "_@types_bootstrap@5.0.17@@types/bootstrap";
+import {Tooltip} from "bootstrap";
 
 document.getElementById('tail_script')?.remove()
 
