@@ -134,6 +134,10 @@ class Connection {
 
     public destroy() {
         this.socket?.close()
+        ipcMain.removeAllListeners('core-get-status:' + this.host)
+        ipcMain.removeAllListeners('core-get-tasks:' + this.host)
+        ipcMain.removeHandler('core-start-task:' + this.host)
+        ipcMain.removeHandler('core-stop-task:' + this.host)
     }
 
     public toString(): string {
