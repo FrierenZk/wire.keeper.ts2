@@ -359,6 +359,7 @@ class ListItemElement {
     }
 
     public filter(t: string) {
+        this.removeFilter()
         let f = true
         this.map.forEach((value, key) => {
             if (!key.includes(t)) value.hidden = true
