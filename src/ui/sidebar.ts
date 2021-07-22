@@ -111,11 +111,11 @@ export class Sidebar {
                 btn.setAttribute('data-bs-dismiss', 'alert')
                 btn.setAttribute('aria-label', 'Close')
                 btn.onclick = () => {
-                    //TODO remove list filter
+                    connectionList.removeFilter()
                     setImmediate(() => alert.remove())
                 }
                 filters.appendChild(alert)
-                //TODO filter out target in whole list
+                connectionList.filter(searchInput.value.trim())
             }
         }
 
@@ -153,6 +153,14 @@ class ConnectionList {
                 ipcRenderer.send('core-delete-connection', this.select.trim())
             })
         else showAlert(readLocal('ui.navi.delete.alert'))
+    }
+
+    public filter(t: string) {
+        this.map.forEach(value => value.filter(t))
+    }
+
+    public removeFilter() {
+        this.map.forEach(value => value.removeFilter())
     }
 
     protected buildList(arr: Array<string>) {
@@ -248,6 +256,14 @@ class ListItemGroup {
         ipcRenderer.removeAllListeners('ui-get-tasks-reply:' + this.name)
     }
 
+    public filter(t: string) {
+        this.map.forEach(value => value.filter(t))
+    }
+
+    public removeFilter() {
+        this.map.forEach(value => value.removeFilter())
+    }
+
     protected initListeners() {
         ipcRenderer.on('ui-get-tasks-reply:' + this.name, ((event, args, flag) => {
             if (args instanceof Map) {
@@ -340,5 +356,23 @@ class ListItemElement {
         this.map.clear()
         this.button.remove()
         this.collapse.remove()
+    }
+
+    public filter(t: string) {
+        let f = true
+        this.map.forEach((value, key) => {
+            if (!key.includes(t)) value.hidden = true
+            else f = false
+        })
+        if (f) {
+            this.button.hidden = true
+            this.collapse.hidden = true
+        }
+    }
+
+    public removeFilter() {
+        this.button.removeAttribute('hidden')
+        this.collapse.removeAttribute('hidden')
+        this.map.forEach(value => value.removeAttribute('hidden'))
     }
 }
