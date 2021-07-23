@@ -241,8 +241,59 @@ main {
     display: flex;
     flex-direction: row;
     width: 100%;
-    margin: .5rem 0 .5rem 0;
+    height: 2rem;
+    margin: 1rem 0 1rem 0;
+    padding: 0 2rem;
     background-color: white;
     box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
     z-index: 2;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.content-tab-item {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    margin: 0;
+    padding: 1rem;
+    font-size: .75rem;
+    border-left: 1px solid rgb(222, 226, 230);
+    border-right: 1px solid rgb(222, 226, 230);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+    border-radius: 1rem;
+    z-index: 3;
+}
+
+.content-tab-item[custom-active='false']:hover {
+    background-color: rgb(240, 241, 242);
+}
+
+.content-tab-item[custom-active='true'] {
+    background-color: dodgerblue;
+    color: white;
+}
+
+.content-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    margin: 0 1rem;
+    color: dodgerblue;
+}
+
+.content-tab-btn > svg {
+    border-radius: 50%;
+}
+
+.content-tab-btn > svg:hover {
+    background-color: rgb(240, 241, 242);
+}
+
+.content-tab-btn > svg:active {
+    background-color: rgb(220, 221, 222);
+}
+
+.content-tab-btn[aria-expanded='true'] > svg {
+    background-color: rgb(220, 221, 222);
 }
