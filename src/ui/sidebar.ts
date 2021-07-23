@@ -125,7 +125,7 @@ export class Sidebar {
         let version = document.createElement('div')
         fragment.appendChild(version)
         version.className = 'sidebar-version'
-        ipcRenderer.invoke('core-get-version').then(value=>{
+        ipcRenderer.invoke('core-get-version').then(value => {
             version.innerHTML = `<p>ver ${value}</p>`
         })
 
@@ -305,6 +305,7 @@ class ListItemGroup {
             this.map.set(key, element)
             element.onSelect = () => {
                 if (this.onSelect) this.onSelect(this.name)
+                ipcRenderer.send('core-call-self-event', 'ui-select-task', this.name, key)
             }
         })
     }
