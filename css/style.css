@@ -188,6 +188,10 @@ main {
     border-top: 1px solid rgb(222, 226, 230);
 }
 
+.sidebar-toggle-list-btn:hover {
+    background-color: rgb(240, 241, 242);
+}
+
 .sidebar-toggle-list-btn[aria-expanded="true"] > .sidebar-btn-chevron {
     transform: rotate(90deg);
 }
@@ -197,6 +201,14 @@ main {
     padding: .5rem;
     border-top: 1px solid rgb(222, 226, 230);
     word-break: break-all;
+}
+
+.sidebar-toggle-list-element:hover {
+    background-color: rgb(240, 241, 242);
+}
+
+.sidebar-toggle-list-element:active {
+    background-color: rgb(220, 221, 222);
 }
 
 .sidebar-version {
