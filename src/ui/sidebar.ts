@@ -122,6 +122,13 @@ export class Sidebar {
 
         fragment.appendChild(connectionList.create())
 
+        let version = document.createElement('div')
+        fragment.appendChild(version)
+        version.className = 'sidebar-version'
+        ipcRenderer.invoke('core-get-version').then(value=>{
+            version.innerHTML = `<p>ver ${value}</p>`
+        })
+
         return fragment
     }
 }
@@ -135,7 +142,8 @@ class ConnectionList {
         let fragment = document.createDocumentFragment()
 
         fragment.appendChild(this.list)
-        this.list.className = 'd-flex flex-column'
+        this.list.className = 'd-flex flex-column mb-auto'
+        this.list.style.overflow = 'auto'
 
         this.buildList(['test1', 'test2', 'test3'])
         ipcRenderer.on('ui-get-connections-reply', ((event, args) => this.buildList(Array.from(args))))
