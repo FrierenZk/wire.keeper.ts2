@@ -7,6 +7,7 @@ export class Sidebar {
     static createFragment() {
         let fragment = document.createDocumentFragment()
         let connectionList = new ConnectionList()
+        let searchLabel = new SearchLabel()
 
 
         let header = document.createElement('h6')
@@ -66,6 +67,33 @@ export class Sidebar {
             value.setAttribute('data-bs-placement', 'top')
         })
 
+        fragment.appendChild(searchLabel.create())
+        searchLabel.filter = (value) => {
+            connectionList.filter(value)
+        }
+        searchLabel.removeFilter = () => {
+            connectionList.removeFilter()
+        }
+
+        fragment.appendChild(connectionList.create())
+
+        let version = document.createElement('div')
+        fragment.appendChild(version)
+        version.className = 'sidebar-version'
+        ipcRenderer.invoke('core-get-version').then(value => {
+            version.innerHTML = `<p>ver ${value}</p>`
+        })
+
+        return fragment
+    }
+}
+
+class SearchLabel {
+    public filter: ((_: string) => void) | null = null
+    public removeFilter: (() => void) | null = null
+
+    public create() {
+        let fragment = document.createDocumentFragment()
 
         let search = document.createElement('div')
         search.className = 'd-flex flex-column border-bottom'
@@ -111,23 +139,13 @@ export class Sidebar {
                 btn.setAttribute('data-bs-dismiss', 'alert')
                 btn.setAttribute('aria-label', 'Close')
                 btn.onclick = () => {
-                    connectionList.removeFilter()
+                    if (this.removeFilter) this.removeFilter()
                     setImmediate(() => alert.remove())
                 }
                 filters.appendChild(alert)
-                connectionList.filter(searchInput.value.trim())
+                if (this.filter) this.filter(searchInput.value.trim())
             }
         }
-
-
-        fragment.appendChild(connectionList.create())
-
-        let version = document.createElement('div')
-        fragment.appendChild(version)
-        version.className = 'sidebar-version'
-        ipcRenderer.invoke('core-get-version').then(value => {
-            version.innerHTML = `<p>ver ${value}</p>`
-        })
 
         return fragment
     }
