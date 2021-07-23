@@ -6,15 +6,51 @@ import {showAddModal, showAlert, showConfirmModal, showToast} from "../index-ren
 export class Sidebar {
     static createFragment() {
         let fragment = document.createDocumentFragment()
-        let connectionList = new ConnectionList()
-        let searchLabel = new SearchLabel()
 
+        let buttons = new Buttons()
+        let searchLabel = new SearchLabel()
+        let connectionList = new ConnectionList()
 
         let header = document.createElement('h6')
         header.className = 'sidebar-heading border-bottom'
         header.textContent = 'Main'
         fragment.appendChild(header)
 
+        buttons.refresh = () => {
+            connectionList.refresh()
+        }
+        buttons.delete = () => {
+            connectionList.delete()
+        }
+        fragment.appendChild(buttons.create())
+
+        searchLabel.filter = (value) => {
+            connectionList.filter(value)
+        }
+        searchLabel.removeFilter = () => {
+            connectionList.removeFilter()
+        }
+        fragment.appendChild(searchLabel.create())
+
+        fragment.appendChild(connectionList.create())
+
+        let version = document.createElement('div')
+        fragment.appendChild(version)
+        version.className = 'sidebar-version'
+        ipcRenderer.invoke('core-get-version').then(value => {
+            version.innerHTML = `<p>ver ${value}</p>`
+        })
+
+        return fragment
+    }
+}
+
+class Buttons {
+    public refresh: (() => void) | null = null
+    public delete: (() => void) | null = null
+
+    public create() {
+        let fragment = document.createDocumentFragment()
 
         let buttons = document.createElement('div')
         buttons.className = 'sidebar-btn-group border-bottom'
@@ -28,7 +64,7 @@ export class Sidebar {
                 <path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z"/>
             </svg>`
         refreshBtn.onclick = () => {
-            connectionList.refresh()
+            if (this.refresh) this.refresh()
         }
         ipcRenderer.on('ui-navi-refresh-button', () => refreshBtn.click())
         buttons.appendChild(refreshBtn)
@@ -56,7 +92,7 @@ export class Sidebar {
                 <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
             </svg>`
         xBtn.onclick = () => {
-            connectionList.delete()
+            if (this.delete) this.delete()
         }
         ipcRenderer.on('ui-navi-x-button', () => xBtn.click())
         buttons.appendChild(xBtn)
@@ -65,23 +101,6 @@ export class Sidebar {
             value.className = 'sidebar-btn'
             value.setAttribute('data-bs-toggle', 'tooltip')
             value.setAttribute('data-bs-placement', 'top')
-        })
-
-        fragment.appendChild(searchLabel.create())
-        searchLabel.filter = (value) => {
-            connectionList.filter(value)
-        }
-        searchLabel.removeFilter = () => {
-            connectionList.removeFilter()
-        }
-
-        fragment.appendChild(connectionList.create())
-
-        let version = document.createElement('div')
-        fragment.appendChild(version)
-        version.className = 'sidebar-version'
-        ipcRenderer.invoke('core-get-version').then(value => {
-            version.innerHTML = `<p>ver ${value}</p>`
         })
 
         return fragment
