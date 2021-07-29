@@ -60,16 +60,16 @@ function createMenu(webContents: WebContents) {
             submenu: [
                 {
                     label: readLocal('core.menu.connection.refresh'), id: 'reconnect',
-                    click: async () => webContents.send('ui-navi-refresh-button')
+                    click: async () => webContents.send('ui-sidebar-refresh-button')
                 },
                 {type: 'separator'},
                 {
                     label: readLocal('core.menu.connection.add'), id: 'connect',
-                    click: async () => webContents.send('ui-navi-add-button')
+                    click: async () => webContents.send('ui-sidebar-add-button')
                 },
                 {
                     label: readLocal('core.menu.connection.delete'), id: 'disconnect',
-                    click: async () => webContents.send('ui-navi-x-button')
+                    click: async () => webContents.send('ui-sidebar-x-button')
                 },
             ]
         },
