@@ -55,7 +55,7 @@ function createMenu(webContents: WebContents) {
         // {role: 'editMenu'},
         {role: 'viewMenu'},
         {
-            label: 'Connection',
+            label: readLocal('core.menu.connection'),
             id: 'connectionmenu',
             submenu: [
                 {

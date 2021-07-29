@@ -1,0 +1,32 @@
+{
+  "core.menu.connection": "Connections",
+  "core.menu.connection.refresh": "Refresh",
+  "core.menu.connection.add": "Add Connection",
+  "core.menu.connection.delete": "Delete Connection",
+
+  "core.menu.learn": "Lean More About $0",
+  "core.menu.about": "About Wire.Keeper",
+
+
+  "core.delete.connection.success": "Connection \"$0\" has been deleted",
+  "core.delete.connection.failed": "Connection \"$0\" deletion error occurred",
+  "core.create.connection.success": "Connection \"$0\" successfully added",
+  "core.create.connection.failed": "Failed to add connection \"$0\"",
+
+  "core.connection.start.task.status": "[$0]: Start task $1 \"$2\"",
+  "core.connection.stop.task.status": "[$0]: Stop task $1 \"$2\"",
+
+
+  "ui.sidebar.refresh": "Refresh",
+  "ui.sidebar.add": "Add Connection",
+  "ui.sidebar.delete": "Delete Connection",
+
+  "ui.sidebar.type.to.search": "Type to search",
+  "ui.sidebar.filter.html": "Filter out the task which contains \"$0\"",
+
+  "ui.sidebar.delete.title": "Delete connection \"$0\" ?",
+  "ui.sidebar.delete.alert": "Please select a valid connection",
+
+  "ui.sidebar.native.load": "[$0]: Failed to load configs from server, use native's instead",
+  "ui.sidebar.remote.load": "[$0]: Update configs success"
+}
