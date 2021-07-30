@@ -340,16 +340,16 @@ class ListItemGroup {
             let element = new ListItemElement(key)
             this.list.appendChild(element.create(value))
             this.map.set(key, element)
-            element.onSelect = () => {
+            element.onSelect = (task: string) => {
                 if (this.onSelect) this.onSelect(this.name)
-                ipcRenderer.send('core-call-self-event', 'ui-select-task', this.name, key)
+                ipcRenderer.invoke('core-call-self-event', 'ui-select-task', this.name, task).then()
             }
         })
     }
 }
 
 class ListItemElement {
-    public onSelect: (() => void) | null = null
+    public onSelect: ((_: string) => void) | null = null
     protected name: string
     protected button = document.createElement('div')
     protected collapse = document.createElement('div')
@@ -375,16 +375,13 @@ class ListItemElement {
             <svg width="0.75rem" height="0.75rem" fill="currentColor" class="bi bi-chevron-right sidebar-btn-chevron mx-2" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
             </svg>${this.name}`
-        this.button.addEventListener('click', () => {
-            if (this.onSelect) this.onSelect()
-        })
 
         arr.forEach(value => {
             let divElement = document.createElement('div')
             divElement.className = 'sidebar-toggle-list-element'
             divElement.setAttribute('title', value)
             divElement.onclick = () => {
-                if (this.onSelect) this.onSelect()
+                if (this.onSelect) this.onSelect(value)
             }
             this.map.set(value, divElement)
             divElement.textContent = value
