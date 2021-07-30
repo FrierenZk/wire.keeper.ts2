@@ -1,5 +1,9 @@
-import {readLocal} from "../common/resources";
 import {randomId} from "./random";
+import {readLocal} from "../common/resources";
+import {ipcRenderer, IpcRendererEvent} from "electron";
+
+let selectHost = 'None';
+let selectTask = 'None'
 
 export class Content {
     static createFragment() {
@@ -8,12 +12,26 @@ export class Content {
         let tabSet = new TabSet()
         fragment.appendChild(tabSet.create())
 
+        ipcRenderer.on('ui-select-task', (event, args) => {
+            if (args instanceof Array) {
+                selectHost = args[0]
+                selectTask = args[1]
+            }
+        })
+
         return fragment
     }
 }
 
 class TabSet {
+    protected tabDiv = document.createElement('div')
+    protected pageContainer = document.createElement('div')
     protected map = new Map<string, TabItem>()
+    protected currentPage: Page | null = null
+    protected pageList: Array<PageBuilder> = [{
+        label: `${readLocal('ui.content.label.task')}`,
+        newPage: () => new TaskPage()
+    },]
 
     public create() {
         let fragment = document.createDocumentFragment()
@@ -21,6 +39,10 @@ class TabSet {
         let tabSet = document.createElement('div')
         tabSet.className = 'content-tab-set'
         fragment.appendChild(tabSet)
+
+        tabSet.appendChild(this.tabDiv)
+        this.tabDiv.className = 'p-0 m-0 d-inline-flex flex-row'
+        this.tabDiv.style.minHeight = '2rem'
 
         let addBtn = document.createElement('div')
         addBtn.id = randomId('button')
@@ -41,16 +63,20 @@ class TabSet {
 
         tabSet.appendChild(dropdown)
 
+        fragment.appendChild(this.pageContainer)
+        this.pageContainer.className = 'content-page'
+
         addBtn.addEventListener('click', () => {
             while (dropdown.hasChildNodes()) dropdown.lastChild?.remove()
             let fragment = document.createDocumentFragment()
-            ;['task', 'timer'].forEach(value => {
+            this.pageList.forEach(value => {
+                if (this.map.has(value.label!)) return
                 let li = document.createElement('li')
-                li.textContent = value
+                li.textContent = value.label!
                 li.className = 'dropdown-item'
                 li.onclick = () => {
                     console.log(`dropdown click ${value}`)
-                    //TODO append tab to tab set
+                    this.appendTabItem(value)
                 }
                 fragment.appendChild(li)
             })
@@ -60,10 +86,42 @@ class TabSet {
         return fragment
     }
 
+    protected appendTabItem(builder: PageBuilder) {
+        let item = new TabItem()
+        let label = builder.label!
+        let page = builder.newPage!()!
+        this.tabDiv.appendChild(item.create(label))
+        this.map.set(label, item)
+        item.onClick = () => {
+            this.map.forEach((value, key) => {
+                if (key != label) value.deactivate()
+            })
+            this.updatePage(page)
+        }
+        item.onRemove = () => {
+            if (this.currentPage === page) {
+                this.currentPage.remove()
+                this.currentPage = null
+                while (this.pageContainer.hasChildNodes()) this.pageContainer.lastChild?.remove()
+            }
+            this.map.delete(label)
+        }
+    }
+
+    protected updatePage(page: Page) {
+        this.currentPage?.remove()
+        while (this.pageContainer.hasChildNodes()) this.pageContainer.lastChild?.remove()
+
+        this.currentPage = page
+        page.create().then(r => {
+            this.pageContainer.appendChild(r)
+        })
+    }
 }
 
 class TabItem {
     public onClick: (() => void) | null = null
+    public onRemove: (() => void) | null = null
     protected tab = document.createElement('div')
 
     public create(title: string) {
@@ -74,10 +132,53 @@ class TabItem {
             if (this.onClick) this.onClick()
         }
         this.tab.textContent = title
+        let xBtn = document.createElement('div')
+        this.tab.appendChild(xBtn)
+        xBtn.className = 'content-tab-item-x'
+        xBtn.innerHTML = `
+            <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+            </svg>`
+        xBtn.addEventListener('click', (e) => {
+            e.cancelBubble = true
+            this.tab.remove()
+            if (this.onRemove) this.onRemove()
+        })
         return this.tab
     }
 
     public deactivate() {
         this.tab.setAttribute('custom-active', 'false')
+    }
+}
+
+class PageBuilder {
+    label: string | undefined
+    newPage: (() => Page) | undefined
+}
+
+interface Page {
+    create(): Promise<DocumentFragment>
+
+    remove(): void
+}
+
+class TaskPage implements Page {
+    protected cleanList: Array<HTMLElement> = []
+
+    public async create() {
+        let fragment = document.createDocumentFragment()
+        
+        ipcRenderer.on('ui-select-task', this.update)
+        return fragment
+    }
+
+    public remove(): void {
+        this.cleanList.forEach(value => value.remove())
+        ipcRenderer.removeListener('ui-select-task', this.update)
+    }
+
+    protected update(event: IpcRendererEvent, args:any) {
+        console.log(args)
     }
 }
