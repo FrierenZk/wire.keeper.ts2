@@ -28,5 +28,10 @@
   "ui.sidebar.delete.alert": "Please select a valid connection",
 
   "ui.sidebar.native.load": "[$0]: Failed to load configs from server, use native's instead",
-  "ui.sidebar.remote.load": "[$0]: Update configs success"
+  "ui.sidebar.remote.load": "[$0]: Update configs success",
+
+
+  "ui.content.label.task": "Task",
+  "ui.content.page.task.title": "Current Task",
+  "ui.content.page.task.status": "Current Status"
 }

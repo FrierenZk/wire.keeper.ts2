@@ -168,7 +168,9 @@ class TaskPage implements Page {
 
     public async create() {
         let fragment = document.createDocumentFragment()
-        
+
+        fragment.appendChild(this.createHeader())
+
         ipcRenderer.on('ui-select-task', this.update)
         return fragment
     }
@@ -178,7 +180,62 @@ class TaskPage implements Page {
         ipcRenderer.removeListener('ui-select-task', this.update)
     }
 
-    protected update(event: IpcRendererEvent, args:any) {
+    protected createHeader() {
+        let fragment = document.createDocumentFragment()
+
+        let content = document.createElement('div')
+        fragment.appendChild(content)
+        this.cleanList.push(content)
+        content.className = 'd-flex flex-row'
+
+        let div = document.createElement('div')
+        content.appendChild(div)
+        div.className = 'd-flex flex-column w-30'
+        div.style.minWidth = '20rem'
+        div.appendChild(this.createLabel())
+
+        return fragment
+    }
+
+    protected createLabel() {
+        let fragment = document.createDocumentFragment()
+
+        let card = document.createElement('div')
+        fragment.appendChild(card)
+        card.className = 'content-page-card flex-column'
+
+        let title = document.createElement('div')
+        card.appendChild(title)
+        title.className = 'content-page-task-card-item'
+
+        let titleHeader = document.createElement('div')
+        title.appendChild(titleHeader)
+        titleHeader.className = 'header'
+        titleHeader.textContent = readLocal('ui.content.page.task.title')
+
+        let titleContent = document.createElement('div')
+        title.appendChild(titleContent)
+        titleContent.className = 'body'
+        titleContent.textContent = 'None'
+
+        let status = document.createElement('div')
+        card.appendChild(status)
+        status.className = 'content-page-task-card-item'
+
+        let statusHeader = document.createElement('div')
+        status.appendChild(statusHeader)
+        statusHeader.className = 'header'
+        statusHeader.textContent = readLocal('ui.content.page.task.status')
+
+        let statusContent = document.createElement('div')
+        status.appendChild(statusContent)
+        statusContent.className = 'body'
+        statusContent.textContent = 'None'
+
+        return fragment
+    }
+
+    protected update(event: IpcRendererEvent, args: any) {
         console.log(args)
     }
 }
