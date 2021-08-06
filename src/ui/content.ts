@@ -193,6 +193,7 @@ class TaskPage implements Page {
         div.className = 'd-flex flex-column w-30'
         div.style.minWidth = '20rem'
         div.appendChild(this.createLabel())
+        div.appendChild(this.createButtons())
 
         return fragment
     }
@@ -218,19 +219,54 @@ class TaskPage implements Page {
         titleContent.className = 'body'
         titleContent.textContent = 'None'
 
-        let status = document.createElement('div')
-        card.appendChild(status)
-        status.className = 'content-page-task-card-item'
+        return fragment
+    }
 
-        let statusHeader = document.createElement('div')
-        status.appendChild(statusHeader)
-        statusHeader.className = 'header'
-        statusHeader.textContent = readLocal('ui.content.page.task.status')
+    protected createButtons() {
+        let fragment = document.createDocumentFragment()
 
-        let statusContent = document.createElement('div')
-        status.appendChild(statusContent)
-        statusContent.className = 'body'
-        statusContent.textContent = 'None'
+        let card = document.createElement('div')
+        fragment.appendChild(card)
+        card.className = 'content-page-card flex-column'
+
+        let header = document.createElement('div')
+        card.appendChild(header)
+        header.className = 'content-page-task-status-header'
+        header.textContent = readLocal('ui.content.page.task.status')
+
+        let body = document.createElement('div')
+        card.appendChild(body)
+        body.className = 'content-page-task-status-body'
+
+        let dot = document.createElement('div')
+        body.appendChild(dot)
+        dot.className = 'dot'
+        dot.setAttribute('toggle-color', 'default')
+
+        let p = document.createElement('p')
+        body.appendChild(p)
+        p.textContent = 'None'
+
+        let buttons = document.createElement('div')
+        body.appendChild(buttons)
+        buttons.className = 'content-page-task-status-buttons'
+        buttons.addEventListener('click', (ev => ev.cancelBubble))
+
+        let play = document.createElement('div')
+        buttons.appendChild(play)
+        play.className = 'play-btn'
+        play.innerHTML = `
+            <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+                <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+            </svg>`
+
+        let stop = document.createElement('div')
+        buttons.appendChild(stop)
+        stop.className = 'stop-btn'
+        stop.innerHTML = `
+            <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-stop-fill" viewBox="0 0 16 16">
+                <path d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5z"/>
+            </svg>`
 
         return fragment
     }
