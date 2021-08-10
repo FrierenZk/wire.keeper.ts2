@@ -415,6 +415,11 @@ main {
     color: darkgray;
     font-size: .75rem;
     margin: 0;
+    user-select: none;
+}
+
+.content-page-task-status-body > p:hover {
+    cursor: pointer;
 }
 
 .content-page-task-status-buttons {
@@ -447,6 +452,7 @@ main {
     background-color: white;
     color: dodgerblue;
     border: .125rem solid dodgerblue;
+    cursor: pointer;
 }
 
 .content-page-task-status-buttons > .stop-btn {

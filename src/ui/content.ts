@@ -16,6 +16,7 @@ export class Content {
             if (args instanceof Array) {
                 selectHost = args[0]
                 selectTask = args[1]
+                if (selectHost && selectTask) tabSet.openTaskTab()
             }
         })
 
@@ -75,7 +76,6 @@ class TabSet {
                 li.textContent = value.label!
                 li.className = 'dropdown-item'
                 li.onclick = () => {
-                    console.log(`dropdown click ${value}`)
                     this.appendTabItem(value)
                 }
                 fragment.appendChild(li)
@@ -86,7 +86,17 @@ class TabSet {
         return fragment
     }
 
-    protected appendTabItem(builder: PageBuilder) {
+    public openTaskTab() {
+        let label = readLocal('ui.content.label.task')
+        if (this.map.has(label)) {
+            this.map.get(label)?.active()
+        } else {
+            let value = this.pageList.find(value => value?.label === label)
+            if (value) this.appendTabItem(value, true)
+        }
+    }
+
+    protected appendTabItem(builder: PageBuilder, select: boolean = false) {
         let item = new TabItem()
         let label = builder.label!
         let page = builder.newPage!()!
@@ -106,6 +116,7 @@ class TabSet {
             }
             this.map.delete(label)
         }
+        if (select) item.active()
     }
 
     protected updatePage(page: Page) {
@@ -147,12 +158,16 @@ class TabItem {
         return this.tab
     }
 
+    public active() {
+        this.tab.click()
+    }
+
     public deactivate() {
         this.tab.setAttribute('custom-active', 'false')
     }
 }
 
-class PageBuilder {
+abstract class PageBuilder {
     label: string | undefined
     newPage: (() => Page) | undefined
 }
@@ -165,19 +180,35 @@ interface Page {
 
 class TaskPage implements Page {
     protected cleanList: Array<HTMLElement> = []
+    protected updateListeners: Array<(host: string, task: string) => void> = []
+    protected rendererListeners: Map<string, Array<(event: IpcRendererEvent, args: any) => void>> = new Map()
 
     public async create() {
         let fragment = document.createDocumentFragment()
 
         fragment.appendChild(this.createHeader())
+        fragment.appendChild(this.createBody())
 
-        ipcRenderer.on('ui-select-task', this.update)
+        this.bindRendererListeners('ui-select-task', (event: IpcRendererEvent, args: any) => {
+            try {
+                let host = args[0]
+                let task = args[1]
+                this.updateListeners.forEach(value => value(host, task))
+            } catch (e) {
+                console.error(e)
+            }
+        })
+
         return fragment
     }
 
     public remove(): void {
         this.cleanList.forEach(value => value.remove())
-        ipcRenderer.removeListener('ui-select-task', this.update)
+        this.rendererListeners.forEach((value, key) => {
+            value.forEach(func => {
+                ipcRenderer.removeListener(key, func)
+            })
+        })
     }
 
     protected createHeader() {
@@ -194,6 +225,8 @@ class TaskPage implements Page {
         div.style.minWidth = '20rem'
         div.appendChild(this.createLabel())
         div.appendChild(this.createButtons())
+
+        content.appendChild(this.createSpec())
 
         return fragment
     }
@@ -217,7 +250,9 @@ class TaskPage implements Page {
         let titleContent = document.createElement('div')
         title.appendChild(titleContent)
         titleContent.className = 'body'
-        titleContent.textContent = 'None'
+        let update = ((host: string, task: string) => titleContent.textContent = `${host} / ${task}`)
+        update(selectHost, selectTask)
+        this.updateListeners.push(update)
 
         return fragment
     }
@@ -246,6 +281,23 @@ class TaskPage implements Page {
         let p = document.createElement('p')
         body.appendChild(p)
         p.textContent = 'None'
+        let update = (event: IpcRendererEvent, status: string) => {
+            p.textContent = status
+        }
+        let pre = selectHost
+        ipcRenderer.on('ui-get-task-status-reply:' + pre, update)
+        this.updateListeners.push(((host, _) => {
+            ipcRenderer.removeListener('ui-get-task-status-reply:' + pre, update)
+            ipcRenderer.on('ui-get-task-status-reply:' + host, update)
+            pre = host
+            p.textContent = 'None'
+            ipcRenderer.send('core-get-task-status:' + selectHost, selectTask)
+        }))
+        p.addEventListener('click', ev => {
+            ipcRenderer.send('core-get-task-status:' + selectHost, selectTask)
+            ev.cancelBubble
+        })
+        p.click()
 
         let buttons = document.createElement('div')
         body.appendChild(buttons)
@@ -259,6 +311,10 @@ class TaskPage implements Page {
             <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
                 <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
             </svg>`
+        play.addEventListener('click', ev => {
+            ipcRenderer.invoke('core-start-task:' + selectHost, selectTask).then(() => p.click())
+            ev.cancelBubble
+        })
 
         let stop = document.createElement('div')
         buttons.appendChild(stop)
@@ -267,11 +323,31 @@ class TaskPage implements Page {
             <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-stop-fill" viewBox="0 0 16 16">
                 <path d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5z"/>
             </svg>`
+        stop.addEventListener('click', ev => {
+            ipcRenderer.invoke('core-stop-task:' + selectHost, selectTask).then(() => p.click())
+            ev.cancelBubble
+        })
 
         return fragment
     }
 
-    protected update(event: IpcRendererEvent, args: any) {
-        console.log(args)
+    protected createSpec() {
+        let fragment = document.createDocumentFragment()
+
+        let card = document.createElement('div')
+        fragment.appendChild(card)
+        card.className = 'content-page-card flex-column'
+
+        return fragment
+    }
+
+    protected createBody() {
+        return document.createDocumentFragment()
+    }
+
+    protected bindRendererListeners(channel: string, func: (event: IpcRendererEvent, args: any) => void) {
+        if (!this.rendererListeners.has(channel)) this.rendererListeners.set(channel, [])
+        this.rendererListeners.get(channel)!.push(func)
+        ipcRenderer.on(channel, func)
     }
 }

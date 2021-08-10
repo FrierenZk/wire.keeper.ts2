@@ -198,6 +198,11 @@ class Connection {
                 else event.sender.send('ui-toast-show-alert', msg)
             })
         }))
+        ipcMain.on('core-get-task-status:' + this.host, ((event, args) => {
+            this.socket?.emit('get_task_status', args, async (data: string) => {
+                if (data) event.sender.send('ui-get-task-status-reply:' + this.host, data)
+            })
+        }))
     }
 }
 
