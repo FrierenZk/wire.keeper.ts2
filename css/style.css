@@ -334,6 +334,7 @@ main {
 .content-page {
     /*noinspection CssInvalidPropertyValue*/
     height: -webkit-fill-available;
+    overflow-y: auto;
 }
 
 .content-page-card {
@@ -464,4 +465,122 @@ main {
     background-color: white;
     color: red;
     border: .125rem solid red;
+}
+
+.content-page-task-body-header {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    height: 2rem;
+    margin: 1rem 2rem 0 2rem;
+    padding: 0 2rem;
+    background-color: white;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .08);
+    border-top-left-radius: 4rem;
+    border-top-right-radius: 4rem;
+    position: relative;
+    z-index: 2;
+}
+
+.content-page-task-body-header > p {
+    margin: 0;
+    font-weight: bold;
+    user-select: none;
+}
+
+.content-page-task-body {
+    min-height: 5rem;
+    max-height: max(calc(100% - 20rem), 40rem);
+    margin: 0 2rem;
+    padding: 1rem 1rem 1rem 2.5rem;
+    background-color: lightgoldenrodyellow;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15);
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-size: .75rem;
+    position: relative;
+    z-index: 0;
+}
+
+.content-page-task-body[toggle-hidden="true"] {
+    display: none !important;
+}
+
+.content-page-task-body-interval {
+    display: flex;
+    align-items: center;
+    margin: 0 .25rem;
+    padding: .125rem .75rem;
+    color: dodgerblue;
+    border: 1px solid dodgerblue;
+    border-radius: 1rem;
+    font-size: .75rem;
+    user-select: none;
+}
+
+.content-page-task-body-interval:hover {
+    color: white;
+    background-color: dodgerblue;
+    cursor: pointer;
+}
+
+.content-page-task-body-interval:after {
+    display: inline-block;
+    margin-left: .5em;
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    border-left: .3em solid transparent;
+}
+
+.content-page-task-body-btn {
+    display: flex;
+    align-items: center;
+    margin: 0 .25rem;
+    padding: .125rem .75rem;
+    color: dodgerblue;
+    border: 1px solid dodgerblue;
+    border-radius: 1rem;
+    font-size: .75rem;
+    user-select: none;
+}
+
+.content-page-task-body-btn:hover {
+    color: white;
+    background-color: dodgerblue;
+    cursor: pointer;
+}
+
+.content-page-task-body-tail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    margin: 0 2rem 1rem 2rem;
+    padding: 0 2rem;
+    background-color: white;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15);
+    border-bottom-left-radius: 4rem;
+    border-bottom-right-radius: 4rem;
+    position: relative;
+    z-index: 1;
+}
+
+.content-page-task-body-tail > div {
+    font-size: 0.75rem;
+    color: dodgerblue;
+    user-select: none;
+}
+
+.content-page-task-body-tail > div:hover {
+    color: #2dd8ff;
+    cursor: pointer;
+}
+
+
+/* */
+.user-select-none {
+    user-select: none !important;
 }

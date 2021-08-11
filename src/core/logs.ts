@@ -1,12 +1,12 @@
 import {mkdirIfNotExist, prefixPath} from "../common/path";
 import {setInterval} from "timers";
-import {appendFile, statSync, rmdirSync} from 'fs'
-import {ipcMain} from "electron";
+import {appendFile, readFileSync, rmdirSync, statSync, writeFileSync} from 'fs'
+import {dialog, ipcMain} from "electron";
+import {readLocal} from "../common/resources";
 
 mkdirIfNotExist("./data/tmp")
 
 let files = new Set<string>()
-// let current: string = ""
 
 function randomName(): string {
     let r = () => Math.trunc((Math.random() * 10e12)).toString(36) + Math.trunc((Math.random() * 10e12)).toString(36)
@@ -48,15 +48,27 @@ class LogsWriter {
                         this.createNewFile()
                 })
             }
-        }, 200)
+        }, 100)
     }
 
-    public get allFiles() {
-        return this.files
+    public get allLogs() {
+        let arr: Array<string> = []
+        this.files.forEach(value => {
+            try {
+                arr.push(readFileSync(prefixPath('./data/tmp/' + value)).toString())
+            } catch (e) {
+                console.warn(e)
+            }
+        })
+        return arr
     }
 
     public append(msg: string) {
         this.buffer.push(msg)
+    }
+
+    public clear() {
+        this.files = []
     }
 
     protected loadLatestFile(): string {
@@ -81,10 +93,24 @@ async function appendLogs(msg: string, task: string, host: string) {
 }
 
 ipcMain.handle('core-get-logs', ((event, host, task) => {
-    // current = host + '_' + task
-    if (!writers.has(host)) return []
-    if (!writers.get(host)!.has(task)) return []
-    return writers.get(host)!.get(task)!.allFiles
+    return writers?.get(host)?.get(task)?.allLogs || []
+}))
+
+ipcMain.handle('core-clear-logs', ((event, host, task) => {
+    if (writers.has(host)) if (writers.get(host)!.has(task)) writers.get(host)?.get(task)?.clear()
+}))
+
+ipcMain.handle('core-save-logs', ((event, host, task) => {
+    let writer = writers.get(host)?.get(task)
+    dialog.showSaveDialog({
+        title: readLocal('core.logs.save.dialog.title'),
+        defaultPath: `${task}`,
+        filters: [{name: 'Text Files', extensions: ['txt']}, {name: 'All Files', extensions: ['*']}]
+    }).then(r => {
+        if (r?.filePath)
+            writeFileSync(r.filePath, writer?.allLogs.join('\r\n')
+                .replace(/<[^>]+>/g, '') || '')
+    })
 }))
 
 function cleanLogs() {

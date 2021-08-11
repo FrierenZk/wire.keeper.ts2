@@ -33,5 +33,16 @@
 
   "ui.content.label.task": "Task",
   "ui.content.page.task.title": "Current Task",
-  "ui.content.page.task.status": "Current Status"
+  "ui.content.page.task.status": "Current Status",
+  "ui.content.page.task.body.title": "Current Logs",
+  "ui.content.page.task.body.interval": "Auto Update: $0s",
+  "ui.content.page.task.body.interval.closed": "Auto Update: Closed",
+  "ui.content.page.task.body.interval.close": "Close",
+  "ui.content.page.task.body.interval.second": "1 Second",
+  "ui.content.page.task.body.interval.seconds": "$0 Seconds",
+  "ui.content.page.task.body.interval.milliseconds": "$0 Milliseconds",
+  "ui.content.page.task.body.save": "Save",
+  "ui.content.page.task.body.clear": "Clear",
+  "ui.content.page.task.body.tail.hide": "Click to show",
+  "ui.content.page.task.body.tail.show": "Click to hide"
 }

@@ -1,6 +1,7 @@
 import {randomId} from "./random";
 import {readLocal} from "../common/resources";
 import {ipcRenderer, IpcRendererEvent} from "electron";
+import {setInterval, clearInterval} from "timers"
 
 let selectHost = 'None';
 let selectTask = 'None'
@@ -57,12 +58,11 @@ class TabSet {
         tabSet.appendChild(addBtn)
 
         let dropdown = document.createElement('ul')
+        tabSet.appendChild(dropdown)
         dropdown.className = 'dropdown-menu'
         dropdown.style.fontSize = '0.75rem'
         dropdown.setAttribute('aria-labelledby', addBtn.id)
         dropdown.innerHTML = '<li class="dropdown-item">example</li>'
-
-        tabSet.appendChild(dropdown)
 
         fragment.appendChild(this.pageContainer)
         this.pageContainer.className = 'content-page'
@@ -74,7 +74,7 @@ class TabSet {
                 if (this.map.has(value.label!)) return
                 let li = document.createElement('li')
                 li.textContent = value.label!
-                li.className = 'dropdown-item'
+                li.className = 'dropdown-item user-select-none'
                 li.onclick = () => {
                     this.appendTabItem(value)
                 }
@@ -182,6 +182,7 @@ class TaskPage implements Page {
     protected cleanList: Array<HTMLElement> = []
     protected updateListeners: Array<(host: string, task: string) => void> = []
     protected rendererListeners: Map<string, Array<(event: IpcRendererEvent, args: any) => void>> = new Map()
+    protected logTimer: NodeJS.Timeout | null = null
 
     public async create() {
         let fragment = document.createDocumentFragment()
@@ -342,7 +343,130 @@ class TaskPage implements Page {
     }
 
     protected createBody() {
-        return document.createDocumentFragment()
+        let fragment = document.createDocumentFragment()
+
+        let header = document.createElement('div')
+        fragment.appendChild(header)
+        header.className = 'content-page-task-body-header'
+        header.innerHTML = `<p>${readLocal('ui.content.page.task.body.title')}</p>`
+
+        let btnDiv = document.createElement('div')
+        header.appendChild(btnDiv)
+        btnDiv.className = 'ms-auto d-inline-flex flex-row'
+
+        let intervalDiv = document.createElement('div')
+        btnDiv.appendChild(intervalDiv)
+        intervalDiv.className = 'content-page-task-body-interval'
+        intervalDiv.id = randomId('button')
+        intervalDiv.setAttribute('data-bs-toggle', 'dropdown')
+        intervalDiv.setAttribute('aria-expanded', 'false')
+        let interval = 10
+        let count = 0
+        let setTimeout = (t: number) => {
+            if (t > 0) {
+                interval = t
+                intervalDiv.textContent = readLocal('ui.content.page.task.body.interval', (t / 10).toString())
+                if (this.logTimer === null) {
+                    this.logTimer = setInterval(() => {
+                        count = count + 1
+                        if (count >= interval) updateLogs()
+                    }, 100)
+                }
+            } else if (this.logTimer) {
+                clearInterval(this.logTimer)
+                this.logTimer = null
+                intervalDiv.textContent = readLocal('ui.content.page.task.body.interval.closed')
+            }
+        }
+        setTimeout(10)
+        let intervalDropdown = document.createElement('div')
+        btnDiv.appendChild(intervalDropdown)
+        intervalDropdown.className = 'dropdown-menu'
+        intervalDropdown.setAttribute('aria-labelledby', intervalDiv.id)
+        ;[
+            {label: readLocal('ui.content.page.task.body.interval.close'), t: -1},
+            {label: readLocal('ui.content.page.task.body.interval.milliseconds', "500"), t: 5},
+            {label: readLocal('ui.content.page.task.body.interval.second'), t: 10},
+            {label: readLocal('ui.content.page.task.body.interval.seconds', "3"), t: 30},
+            {label: readLocal('ui.content.page.task.body.interval.seconds', "5"), t: 50},
+            {label: readLocal('ui.content.page.task.body.interval.seconds', "10"), t: 100}
+        ].forEach(value => {
+            let li = document.createElement('li')
+            li.textContent = value.label
+            li.addEventListener('click', () => setTimeout(value.t))
+            li.className = 'dropdown-item user-select-none'
+            intervalDropdown.appendChild(li)
+        })
+
+        ;[
+            {
+                text: readLocal('ui.content.page.task.body.save'), click: (ev: MouseEvent) => {
+                    ipcRenderer.invoke('core-save-logs', selectHost, selectTask).then()
+                    ev.cancelBubble
+                }
+            }, {
+                text: readLocal('ui.content.page.task.body.clear'), click: (ev: MouseEvent) => {
+                    ipcRenderer.invoke('core-clear-logs', selectHost, selectTask).then(updateLogs)
+                    ev.cancelBubble
+                }
+            }
+        ].forEach(value => {
+            let el = document.createElement('div')
+            btnDiv.appendChild(el)
+            el.className = 'content-page-task-body-btn'
+            el.textContent = value.text
+            el.addEventListener('click', value.click)
+        })
+
+
+        let div = document.createElement('div')
+        fragment.appendChild(div)
+        div.className = 'content-page-task-body'
+        div.id = randomId('logs')
+        let updateLogs = () => {
+            let container = document.getElementById(div.id)
+            if (!container) container = div
+            ipcRenderer.invoke('core-get-logs', selectHost, selectTask).then(r => {
+                let fragment = document.createDocumentFragment()
+                try {
+                    Array.from(r).forEach(value => {
+                        let logDiv = document.createElement('div')
+                        logDiv.innerHTML = String(value)
+                        fragment.appendChild(logDiv)
+                    })
+                } catch (e) {
+                    console.error(e)
+                }
+
+                container!.innerHTML = ''
+                container!.appendChild(fragment)
+            })
+            count = 0
+        }
+        this.updateListeners.push(() => {
+            updateLogs()
+        })
+
+
+        let tail = document.createElement('div')
+        fragment.appendChild(tail)
+        tail.className = 'content-page-task-body-tail'
+
+        let toggleBtn = document.createElement('div')
+        tail.appendChild(toggleBtn)
+        toggleBtn.addEventListener('click', ev => {
+            if (div.getAttribute('toggle-hidden') === 'true') {
+                div.setAttribute('toggle-hidden', 'false')
+                toggleBtn.textContent = readLocal('ui.content.page.task.body.tail.show')
+            } else {
+                div.setAttribute('toggle-hidden', 'true')
+                toggleBtn.textContent = readLocal('ui.content.page.task.body.tail.hide')
+            }
+            ev.cancelBubble
+        })
+        toggleBtn.click()
+
+        return fragment
     }
 
     protected bindRendererListeners(channel: string, func: (event: IpcRendererEvent, args: any) => void) {
