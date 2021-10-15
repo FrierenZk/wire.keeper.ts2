@@ -1,7 +1,7 @@
 import {randomId} from "./random";
 import {readLocal} from "../common/resources";
 import {ipcRenderer, IpcRendererEvent} from "electron";
-import {setInterval, clearInterval} from "timers"
+import {parseMap} from "../common/parser";
 
 let selectHost = 'None';
 let selectTask = 'None'
@@ -182,7 +182,7 @@ class TaskPage implements Page {
     protected cleanList: Array<HTMLElement> = []
     protected updateListeners: Array<(host: string, task: string) => void> = []
     protected rendererListeners: Map<string, Array<(event: IpcRendererEvent, args: any) => void>> = new Map()
-    protected logTimer: NodeJS.Timeout | null = null
+    protected updateInfo: (() => void) | null = null
 
     public async create() {
         let fragment = document.createDocumentFragment()
@@ -218,16 +218,23 @@ class TaskPage implements Page {
         let content = document.createElement('div')
         fragment.appendChild(content)
         this.cleanList.push(content)
+        content.className = 'd-flex flex-column'
+
+        content.appendChild(this.createLabel())
+
+        return fragment
+    }
+
+    protected createBody() {
+        let fragment = document.createDocumentFragment()
+
+        let content = document.createElement('div')
+        fragment.appendChild(content)
+        this.cleanList.push(content)
         content.className = 'd-flex flex-row'
 
-        let div = document.createElement('div')
-        content.appendChild(div)
-        div.className = 'd-flex flex-column w-30'
-        div.style.minWidth = '20rem'
-        div.appendChild(this.createLabel())
-        div.appendChild(this.createButtons())
-
-        content.appendChild(this.createSpec())
+        content.appendChild(this.createButtons())
+        content.appendChild(this.createInfo())
 
         return fragment
     }
@@ -261,210 +268,204 @@ class TaskPage implements Page {
     protected createButtons() {
         let fragment = document.createDocumentFragment()
 
+        let closet = document.createElement('div')
+        fragment.appendChild(closet)
+        closet.className = 'd-inline-flex flex-column'
+
         let card = document.createElement('div')
-        fragment.appendChild(card)
+        closet.appendChild(card)
         card.className = 'content-page-card flex-column'
 
-        let header = document.createElement('div')
-        card.appendChild(header)
-        header.className = 'content-page-task-status-header'
-        header.textContent = readLocal('ui.content.page.task.status')
-
-        let body = document.createElement('div')
-        card.appendChild(body)
-        body.className = 'content-page-task-status-body'
-
-        let dot = document.createElement('div')
-        body.appendChild(dot)
-        dot.className = 'dot'
-        dot.setAttribute('toggle-color', 'default')
-
-        let p = document.createElement('p')
-        body.appendChild(p)
-        p.textContent = 'None'
-        let update = (event: IpcRendererEvent, status: string) => {
-            p.textContent = status
+        let createButton = (icon: HTMLElement, text: string) => {
+            let button = document.createElement('div')
+            button.appendChild(icon)
+            button.className = 'content-page-task-card-item flex-row align-items-center'
+            icon.className = 'card-round-btn'
+            let t = document.createElement('div')
+            t.className = 'user-select-none'
+            t.style.fontSize = '0.875rem'
+            t.textContent = text
+            button.appendChild(t)
+            return button
         }
-        let pre = selectHost
-        ipcRenderer.on('ui-get-task-status-reply:' + pre, update)
-        this.updateListeners.push(((host, _) => {
-            ipcRenderer.removeListener('ui-get-task-status-reply:' + pre, update)
-            ipcRenderer.on('ui-get-task-status-reply:' + host, update)
-            pre = host
-            p.textContent = 'None'
-            ipcRenderer.send('core-get-task-status:' + selectHost, selectTask)
-        }))
-        p.addEventListener('click', ev => {
-            ipcRenderer.send('core-get-task-status:' + selectHost, selectTask)
-            ev.cancelBubble
-        })
-        p.click()
-
-        let buttons = document.createElement('div')
-        body.appendChild(buttons)
-        buttons.className = 'content-page-task-status-buttons'
-        buttons.addEventListener('click', (ev => ev.cancelBubble))
 
         let play = document.createElement('div')
-        buttons.appendChild(play)
-        play.className = 'play-btn'
         play.innerHTML = `
-            <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+            <svg width="1.5rem" height="1.5rem" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
                 <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
             </svg>`
         play.addEventListener('click', ev => {
-            ipcRenderer.invoke('core-start-task:' + selectHost, selectTask).then(() => p.click())
+            ipcRenderer.invoke('core-start-task:' + selectHost, selectTask).then()
             ev.cancelBubble
         })
 
-        let stop = document.createElement('div')
-        buttons.appendChild(stop)
-        stop.className = 'stop-btn'
-        stop.innerHTML = `
-            <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-stop-fill" viewBox="0 0 16 16">
-                <path d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5z"/>
+        let playForce = document.createElement('div')
+        playForce.innerHTML = `
+            <svg width="1.5rem" height="1.5rem" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
+                <path d="M5.921 11.9 1.353 8.62a.719.719 0 0 1 0-1.238L5.921 4.1A.716.716 0 0 1 7 4.719V6c1.5 0 6 0 7 8-2.5-4.5-7-4-7-4v1.281c0 .56-.606.898-1.079.62z"/>
             </svg>`
-        stop.addEventListener('click', ev => {
-            ipcRenderer.invoke('core-stop-task:' + selectHost, selectTask).then(() => p.click())
+        playForce.addEventListener('click', ev => {
+            ipcRenderer.invoke('core-start-task-force:' + selectHost, selectTask).then()
             ev.cancelBubble
         })
+
+        let customPlay = document.createElement('div')
+        customPlay.innerHTML = `
+            <svg width="1.5rem" height="1.5rem" fill="currentColor" class="bi bi-justify-left" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M2 12.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+            </svg>`
+        customPlay.addEventListener('click', ev => {
+            //TODO
+            ev.cancelBubble
+        })
+
+        let timer = document.createElement('div')
+        timer.innerHTML = `
+            <svg width="1.25rem" height="1.25rem" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
+                <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z"/>
+                <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z"/>
+                <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z"/>
+            </svg>`
+        timer.addEventListener('click', ev => {
+            //TODO
+            ev.cancelBubble
+        })
+
+        ;[
+            {icon: play, title: readLocal('ui.content.page.task.play')},
+            {icon: playForce, title: readLocal('ui.content.page.task.replay')},
+            {icon: customPlay, title: readLocal('ui.content.page.task.custom.play')},
+            {icon: timer, title: readLocal('ui.content.page.task.timer')}
+        ].forEach(value => card.appendChild(createButton(value.icon, value.title)))
+
+        let card2 = document.createElement('div')
+        closet.appendChild(card2)
+        card2.className = 'content-page-card flex-column'
+
+        let refresh = document.createElement('div')
+        refresh.innerHTML = `
+            <svg width="1.25rem" height="1.25rem" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+            </svg>`
+        refresh.addEventListener('click', ev => {
+            if (this.updateInfo) this.updateInfo()
+            ev.cancelBubble
+        })
+
+        let edit = document.createElement('div')
+        edit.innerHTML = `
+            <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+            </svg>`
+        edit.addEventListener('click', ev => {
+            //TODO
+            ev.cancelBubble
+        })
+
+        let create = document.createElement('div')
+        create.innerHTML = `
+            <svg width="1.25rem" height="1.25rem" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+            </svg>`
+        create.addEventListener('click', ev => {
+            //TODO
+            ev.cancelBubble
+        })
+
+        let del = document.createElement('dvi')
+        del.innerHTML = `
+            <svg width="1.25rem" height="1.25rem" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+            </svg>`
+        del.addEventListener('click', ev => {
+            //TODO
+            ev.cancelBubble
+        })
+
+        ;[
+            {icon: refresh, title: readLocal('ui.content.page.task.refresh')},
+            {icon: edit, title: readLocal('ui.content.page.task.edit')},
+            {icon: create, title: readLocal('ui.content.page.task.create')},
+            {icon: del, title: readLocal('ui.content.page.task.delete')},
+        ].forEach(value => card2.appendChild(createButton(value.icon, value.title)))
+
+        del.classList.add('alert-btn')
 
         return fragment
     }
 
-    protected createSpec() {
+    protected createInfo() {
         let fragment = document.createDocumentFragment()
 
         let card = document.createElement('div')
         fragment.appendChild(card)
-        card.className = 'content-page-card flex-column'
-
-        return fragment
-    }
-
-    protected createBody() {
-        let fragment = document.createDocumentFragment()
+        card.className = 'flex-column content-page-card w-100'
 
         let header = document.createElement('div')
-        fragment.appendChild(header)
-        header.className = 'content-page-task-body-header'
-        header.innerHTML = `<p>${readLocal('ui.content.page.task.body.title')}</p>`
+        card.appendChild(header)
+        header.className = 'content-page-task-card-item flex-row align-items-center'
 
-        let btnDiv = document.createElement('div')
-        header.appendChild(btnDiv)
-        btnDiv.className = 'ms-auto d-inline-flex flex-row'
+        let text = document.createElement('div')
+        header.appendChild(text)
+        text.className = 'info-header'
+        text.textContent = readLocal('ui.content.page.task.info')
 
-        let intervalDiv = document.createElement('div')
-        btnDiv.appendChild(intervalDiv)
-        intervalDiv.className = 'content-page-task-body-interval'
-        intervalDiv.id = randomId('button')
-        intervalDiv.setAttribute('data-bs-toggle', 'dropdown')
-        intervalDiv.setAttribute('aria-expanded', 'false')
-        let interval = 10
-        let count = 0
-        let setTimeout = (t: number) => {
-            if (t > 0) {
-                interval = t
-                intervalDiv.textContent = readLocal('ui.content.page.task.body.interval', (t / 10).toString())
-                if (this.logTimer === null) {
-                    this.logTimer = setInterval(() => {
-                        count = count + 1
-                        if (count >= interval) updateLogs()
-                    }, 100)
-                }
-            } else if (this.logTimer) {
-                clearInterval(this.logTimer)
-                this.logTimer = null
-                intervalDiv.textContent = readLocal('ui.content.page.task.body.interval.closed')
-            }
-        }
-        setTimeout(10)
-        let intervalDropdown = document.createElement('div')
-        btnDiv.appendChild(intervalDropdown)
-        intervalDropdown.className = 'dropdown-menu'
-        intervalDropdown.setAttribute('aria-labelledby', intervalDiv.id)
-        ;[
-            {label: readLocal('ui.content.page.task.body.interval.close'), t: -1},
-            {label: readLocal('ui.content.page.task.body.interval.milliseconds', "500"), t: 5},
-            {label: readLocal('ui.content.page.task.body.interval.second'), t: 10},
-            {label: readLocal('ui.content.page.task.body.interval.seconds', "3"), t: 30},
-            {label: readLocal('ui.content.page.task.body.interval.seconds', "5"), t: 50},
-            {label: readLocal('ui.content.page.task.body.interval.seconds', "10"), t: 100}
-        ].forEach(value => {
-            let li = document.createElement('li')
-            li.textContent = value.label
-            li.addEventListener('click', () => setTimeout(value.t))
-            li.className = 'dropdown-item user-select-none'
-            intervalDropdown.appendChild(li)
-        })
+        let createItem = (title: string, text: string) => {
+            let div = document.createElement('div')
+            card.appendChild(div)
+            div.className = 'content-page-task-card-item flex-row info-item-div'
 
-        ;[
-            {
-                text: readLocal('ui.content.page.task.body.save'), click: (ev: MouseEvent) => {
-                    ipcRenderer.invoke('core-save-logs', selectHost, selectTask).then()
-                    ev.cancelBubble
-                }
-            }, {
-                text: readLocal('ui.content.page.task.body.clear'), click: (ev: MouseEvent) => {
-                    ipcRenderer.invoke('core-clear-logs', selectHost, selectTask).then(updateLogs)
-                    ev.cancelBubble
-                }
-            }
-        ].forEach(value => {
-            let el = document.createElement('div')
-            btnDiv.appendChild(el)
-            el.className = 'content-page-task-body-btn'
-            el.textContent = value.text
-            el.addEventListener('click', value.click)
-        })
+            let titleDiv = document.createElement('div')
+            div.appendChild(titleDiv)
+            titleDiv.className = 'info-title'
+            titleDiv.textContent = title
 
+            let textDiv = document.createElement('div')
+            div.appendChild(textDiv)
+            textDiv.className = 'info-text'
+            textDiv.textContent = text
 
-        let div = document.createElement('div')
-        fragment.appendChild(div)
-        div.className = 'content-page-task-body'
-        div.id = randomId('logs')
-        let updateLogs = () => {
-            let container = document.getElementById(div.id)
-            if (!container) container = div
-            ipcRenderer.invoke('core-get-logs', selectHost, selectTask).then(r => {
-                let fragment = document.createDocumentFragment()
-                try {
-                    Array.from(r).forEach(value => {
-                        let logDiv = document.createElement('div')
-                        logDiv.innerHTML = String(value)
-                        fragment.appendChild(logDiv)
-                    })
-                } catch (e) {
-                    console.error(e)
-                }
+            let clipboard = `
+                <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                </svg>`
+            let clipboard2 = `
+                <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-clipboard-check" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                </svg>`
 
-                container!.innerHTML = ''
-                container!.appendChild(fragment)
+            let paste = document.createElement('div')
+            div.appendChild(paste)
+            paste.className = 'info-paste'
+            paste.innerHTML = clipboard
+            paste.addEventListener('click', async (ev) => {
+                await navigator.clipboard.writeText(text)
+                paste.innerHTML = clipboard2
+                setTimeout(() => paste.innerHTML = clipboard, 1500)
+                ev.cancelBubble
             })
-            count = 0
         }
-        this.updateListeners.push(() => {
-            updateLogs()
-        })
 
+        this.updateInfo = () => {
+            ipcRenderer.invoke('core-get-task-info:' + selectHost, selectTask).then(r => {
+                if (r) {
+                    Array.from(card.getElementsByClassName('info-item-div')).forEach(value => value.remove())
+                    createItem('name', r.name)
+                    createItem('category', r.category)
+                    createItem('profile', r.profile)
+                    if (r.extraParas) parseMap(JSON.stringify(r.extraParas)).forEach((value, key) => createItem(key, value))
+                }
+            })
+        }
 
-        let tail = document.createElement('div')
-        fragment.appendChild(tail)
-        tail.className = 'content-page-task-body-tail'
-
-        let toggleBtn = document.createElement('div')
-        tail.appendChild(toggleBtn)
-        toggleBtn.addEventListener('click', ev => {
-            if (div.getAttribute('toggle-hidden') === 'true') {
-                div.setAttribute('toggle-hidden', 'false')
-                toggleBtn.textContent = readLocal('ui.content.page.task.body.tail.show')
-            } else {
-                div.setAttribute('toggle-hidden', 'true')
-                toggleBtn.textContent = readLocal('ui.content.page.task.body.tail.hide')
-            }
-            ev.cancelBubble
-        })
-        toggleBtn.click()
+        try {
+            this.updateInfo()
+        } catch (ignore) {
+        }
 
         return fragment
     }
