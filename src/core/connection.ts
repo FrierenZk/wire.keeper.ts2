@@ -2,7 +2,7 @@ import * as io from 'socket.io-client'
 import {ipcMain} from "electron";
 import {readLocal} from "../common/resources";
 import {clearInterval, setInterval} from "timers";
-import {readFile, writeFileSync, renameSync} from 'fs'
+import {readFile, renameSync, writeFileSync} from 'fs'
 import {parseArray, parseMap, stringifyMap} from "../common/parser";
 import {waitUntil} from "../common/coroutines";
 import {mkdirIfNotExist, prefixPath} from "../common/path";
@@ -155,10 +155,11 @@ class Connection {
             transports: ['websocket'] //Unknown reason caused polling connection failed
         })
         this.socket.on('broadcast_logs', async (data: any) => {
-            let arr: Array<string> = Array.from(JSON.parse(data))
-            let task = arr[0]
-            let msg = arr[1]
-            if (task && msg) appendLogs(msg.toString().trim(), task.toString(), this.host).then()
+            let obj = JSON.parse(data)
+            let task = obj['name']
+            let time = obj['time']
+            let msg = obj['msg']
+            if (task && time && msg) appendLogs(time.trim() + ': ' + msg.toString().trim(), task.toString(), this.host).then()
             else {
                 console.warn(`Invalid logs received "${task}:${msg}"`)
             }
@@ -168,7 +169,7 @@ class Connection {
         }))
         ipcMain.on('core-get-tasks:' + this.host, ((event) => {
             let t = false
-            this.socket?.emit('get_available_list', async (data: string) => {
+            this.socket?.emit('get_config_list', async (data: string) => {
                 let task = new Map<string, Array<string>>()
                 parseMap(data).forEach((value, key) => {
                     if (!task.has(value)) task.set(value, [])
@@ -185,24 +186,40 @@ class Connection {
             }, 3000).then(r => event.reply('ui-get-tasks-reply:' + this.host, this.task, r))
         }))
         ipcMain.handle('core-start-task:' + this.host, (event, args) => {
-            this.socket?.emit('set_add_task', args, async (data: string) => {
+            this.socket?.emit('add_task', args, async (data: string) => {
                 let msg = readLocal('core.connection.start.task.status', this.host, args, data)
                 if (data.trim() == 'Success') event.sender.send('ui-toast-show', msg)
                 else event.sender.send('ui-toast-show-alert', msg)
             })
         })
-        ipcMain.handle('core-stop-task:' + this.host, ((event, args) => {
-            this.socket?.emit('set_stop_task', args, async (data: string) => {
-                let msg = readLocal('core.connection.stop.task.status', this.host, args, data)
-                if (data.trim() == 'Success') event.sender.send('ui-toast-show', msg)
-                else event.sender.send('ui-toast-show-alert', msg)
+        ipcMain.handle('core-start-task-force:' + this.host, (event, args) => {
+            this.socket?.emit('add_task', JSON.stringify({name: args, extraParas: {force: true}}),
+                async (data: string) => {
+                    let msg = readLocal('core.connection.start.task.status', this.host, args, data)
+                    if (data.trim() == 'Success') event.sender.send('ui-toast-show', msg)
+                    else event.sender.send('ui-toast-show-alert', msg)
+                })
+        })
+        ipcMain.handle('core-get-task-info:' + this.host, (async (event, args) => {
+            let ret: any | null = null
+            this.socket?.emit('get_config', args, async (data: string) => {
+                if (data.trim().length > 0) ret = JSON.parse(data)
             })
+            await waitUntil(() => (ret != null), 3000)
+            return ret
         }))
-        ipcMain.on('core-get-task-status:' + this.host, ((event, args) => {
-            this.socket?.emit('get_task_status', args, async (data: string) => {
-                if (data) event.sender.send('ui-get-task-status-reply:' + this.host, data)
-            })
-        }))
+        // ipcMain.handle('core-stop-task:' + this.host, ((event, args) => {
+        //     this.socket?.emit('stop_task', args, async (data: string) => {
+        //         let msg = readLocal('core.connection.stop.task.status', this.host, args, data)
+        //         if (data.trim() == 'Success') event.sender.send('ui-toast-show', msg)
+        //         else event.sender.send('ui-toast-show-alert', msg)
+        //     })
+        // }))
+        // ipcMain.on('core-get-task-status:' + this.host, ((event, args) => {
+        //     this.socket?.emit('get_task_status', args, async (data: string) => {
+        //         if (data) event.sender.send('ui-get-task-status-reply:' + this.host, data)
+        //     })
+        // }))
     }
 }
 
