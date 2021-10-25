@@ -193,8 +193,18 @@ abstract class AListener {
     }
 }
 
-class TaskPage extends AListener implements Page {
+abstract class APage extends AListener implements Page {
     protected cleanList: Array<HTMLElement> = []
+
+    abstract create(): Promise<DocumentFragment>
+
+    remove(): void {
+        this.cleanList.forEach(value => value.remove())
+        this.removeRendererListeners()
+    }
+}
+
+class TaskPage extends APage {
     protected updateListeners: Array<(host: string, task: string) => void> = []
     protected updateInfo: (() => void) | null = null
 
@@ -215,11 +225,6 @@ class TaskPage extends AListener implements Page {
         })
 
         return fragment
-    }
-
-    public remove(): void {
-        this.cleanList.forEach(value => value.remove())
-        this.removeRendererListeners()
     }
 
     protected createHeader() {
