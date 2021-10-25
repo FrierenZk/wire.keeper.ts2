@@ -178,10 +178,24 @@ interface Page {
     remove(): void
 }
 
-class TaskPage implements Page {
+abstract class AListener {
+    protected rendererListeners: Map<string, Array<(event: IpcRendererEvent, args: any) => void>> = new Map()
+
+    protected bindRendererListeners(channel: string, func: (event: IpcRendererEvent, args: any) => void) {
+        if (!this.rendererListeners.has(channel)) this.rendererListeners.set(channel, [])
+        this.rendererListeners.get(channel)!.push(func)
+        ipcRenderer.on(channel, func)
+    }
+
+    protected removeRendererListeners() {
+        this.rendererListeners.forEach((value, key) =>
+            value.forEach(func => ipcRenderer.removeListener(key, func)))
+    }
+}
+
+class TaskPage extends AListener implements Page {
     protected cleanList: Array<HTMLElement> = []
     protected updateListeners: Array<(host: string, task: string) => void> = []
-    protected rendererListeners: Map<string, Array<(event: IpcRendererEvent, args: any) => void>> = new Map()
     protected updateInfo: (() => void) | null = null
 
     public async create() {
@@ -205,11 +219,7 @@ class TaskPage implements Page {
 
     public remove(): void {
         this.cleanList.forEach(value => value.remove())
-        this.rendererListeners.forEach((value, key) => {
-            value.forEach(func => {
-                ipcRenderer.removeListener(key, func)
-            })
-        })
+        this.removeRendererListeners()
     }
 
     protected createHeader() {
@@ -468,11 +478,5 @@ class TaskPage implements Page {
         }
 
         return fragment
-    }
-
-    protected bindRendererListeners(channel: string, func: (event: IpcRendererEvent, args: any) => void) {
-        if (!this.rendererListeners.has(channel)) this.rendererListeners.set(channel, [])
-        this.rendererListeners.get(channel)!.push(func)
-        ipcRenderer.on(channel, func)
     }
 }
