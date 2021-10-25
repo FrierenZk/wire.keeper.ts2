@@ -185,6 +185,15 @@ class Connection {
                 return t
             }, 3000).then(r => event.reply('ui-get-tasks-reply:' + this.host, this.task, r))
         }))
+        ipcMain.handle('core-search-task:' + this.host, (async (event, args) => {
+            let ret: string | null = null
+            this.socket?.emit('get_relative_config', args, async (data: string) => {
+                if (data.trim().length > 0) ret = data
+                else console.warn(`Received empty with searching ${args}`)
+            })
+            await waitUntil(() => (ret != null), 3000)
+            return ret
+        }))
         ipcMain.handle('core-start-task:' + this.host, (event, args) => {
             this.socket?.emit('add_task', args, async (data: string) => {
                 let msg = readLocal('core.connection.start.task.status', this.host, args, data)

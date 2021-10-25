@@ -303,6 +303,9 @@ class ListItemGroup {
 
     public filter(t: string) {
         this.map.forEach(value => value.filter(t))
+        ipcRenderer.invoke('core-search-task:' + this.name, t).then(r => Array.from(JSON.parse(r)).forEach(t2 => {
+            this.map.forEach(value => value.filter(String(t2).trim(), true))
+        }))
     }
 
     public removeFilter() {
@@ -401,16 +404,24 @@ class ListItemElement {
         this.collapse.remove()
     }
 
-    public filter(t: string) {
-        this.removeFilter()
+    public filter(t: string, addition: boolean = false) {
+        if (!addition) this.removeFilter()
         let f = true
         this.map.forEach((value, key) => {
-            if (!key.includes(t)) value.hidden = true
-            else f = false
+            if (!key.includes(t)) {
+                if (!addition) value.hidden = true
+            } else {
+                if (addition) value.removeAttribute('hidden')
+                f = false
+            }
         })
-        if (f) {
+        if (f && !addition) {
             this.button.hidden = true
             this.collapse.hidden = true
+        }
+        if (addition && !f) {
+            this.button.removeAttribute('hidden')
+            this.collapse.removeAttribute('hidden')
         }
     }
 
