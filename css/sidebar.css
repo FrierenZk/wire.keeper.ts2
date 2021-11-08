@@ -1,0 +1,199 @@
+.side-bar {
+    display: inline-flex;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    background-color: white;
+    flex-direction: column;
+    max-height: 100%;
+    z-index: 3;
+}
+
+.sidebar-heading {
+    margin-bottom: 0;
+    padding: 1.5rem;
+    color: cornflowerblue;
+    font-size: .7875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .2em;
+}
+
+.sidebar-btn-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0.5rem;
+}
+
+.sidebar-btn-group > .splitter {
+    height: 1rem;
+    width: 0.0625rem;
+    background-color: dimgray;
+    margin: 0 0.1875rem;
+}
+
+.sidebar-btn {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: dodgerblue;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid;
+    border-radius: 50%;
+    padding: 0 0;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    margin: 0 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-btn:hover {
+    color: white;
+    background-color: dodgerblue;
+    border: 1px dodgerblue;
+}
+
+.sidebar-btn:focus {
+    border: 2px solid;
+}
+
+.sidebar-btn:focus > svg {
+}
+
+.sidebar-btn > svg {
+    position: relative;
+}
+
+.sidebar-search-label {
+    align-items: center;
+    padding: 0.5rem;
+    position: relative;
+}
+
+.sidebar-search-input {
+    margin-right: 0.5rem;
+    text-overflow: ellipsis;
+}
+
+.sidebar-search-btn {
+    width: 1rem !important;
+    height: 1rem !important;
+    margin: 0 0.25rem 0 0 !important;
+}
+
+.sidebar-search-filter {
+    display: flex;
+    font-size: 0.75rem;
+    position: relative;
+    padding: .5rem 1rem .5rem 1rem;
+    justify-content: flex-end;
+    align-items: center;
+    color: #084298;
+    background-color: #cfe2ff;
+    border-color: #b6d4fe;
+    border-radius: .25rem;
+    word-break: break-all;
+}
+
+.sidebar-btn-toggle {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: .5rem .5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.sidebar-btn-toggle[aria-expanded="true"] {
+    border-bottom: 0;
+    background-color: dodgerblue;
+    color: white;
+}
+
+.sidebar-btn-toggle[aria-expanded="false"]:hover {
+    background-color: #f7f7f7;
+}
+
+.sidebar-btn-chevron {
+    color: dodgerblue;
+}
+
+.sidebar-btn-status {
+    display: flex;
+    align-items: center;
+    color: dodgerblue;
+    margin-left: auto;
+    margin-right: .5rem;
+}
+
+.sidebar-btn-toggle[aria-expanded="true"] > .sidebar-btn-status {
+    color: white;
+}
+
+.sidebar-btn-toggle[aria-expanded="true"] > .sidebar-btn-chevron {
+    transform: rotate(90deg);
+    color: white;
+}
+
+.sidebar-toggle-list {
+    display: flex;
+    flex-direction: column;
+    min-height: 1.5rem;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0 0 0 1rem;
+    -webkit-box-shadow: inset 4px -2px 0.25rem 0 rgba(0, 0, 0, .08);
+    box-shadow: inset .25rem -.125rem 0.25rem 0 rgba(0, 0, 0, .08);
+}
+
+.sidebar-toggle-list-btn {
+    display: flex;
+    align-items: center;
+    font-size: .75rem;
+    padding: .5rem;
+    border-top: 1px solid rgb(222, 226, 230);
+}
+
+.sidebar-toggle-list-btn:hover {
+    background-color: rgb(240, 241, 242);
+}
+
+.sidebar-toggle-list-btn[aria-expanded="true"] > .sidebar-btn-chevron {
+    transform: rotate(90deg);
+}
+
+.sidebar-toggle-list-element {
+    font-size: .625rem;
+    padding: .5rem;
+    border-top: 1px solid rgb(222, 226, 230);
+    word-break: break-all;
+}
+
+.sidebar-toggle-list-element:hover {
+    background-color: rgb(240, 241, 242);
+}
+
+.sidebar-toggle-list-element:active {
+    background-color: rgb(220, 221, 222);
+}
+
+.sidebar-version {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    flex-direction: row;
+    font-size: .75rem;
+    padding: .25rem 1rem;
+    border-top: 1px solid rgb(222, 226, 230);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+}
+
+.sidebar-version > p {
+    margin: 0 0 0 0
+}

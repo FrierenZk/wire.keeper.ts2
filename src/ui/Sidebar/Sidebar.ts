@@ -4,7 +4,18 @@ import {SearchLabel} from "./SearchLabel";
 import {SidebarButtons} from "./SidebarButtons";
 
 export class Sidebar {
-    static createFragment() {
+    static create() {
+        return new Sidebar().create()
+    }
+
+    create() {
+        let div = document.createElement('div')
+        div.className = 'side-bar col-3'
+        div.appendChild(this.createContent())
+        return div
+    }
+
+    protected createContent() {
         let fragment = document.createDocumentFragment()
 
         let buttons = new SidebarButtons()

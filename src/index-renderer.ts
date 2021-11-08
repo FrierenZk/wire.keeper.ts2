@@ -13,10 +13,7 @@ document.body.appendChild(shadow)
 let main = document.createElement('main')
 document.body.appendChild(main)
 
-let sideBar = document.createElement('div')
-sideBar.className = 'side-bar'
-main.appendChild(sideBar)
-sideBar.appendChild(Sidebar.createFragment())
+main.appendChild(Sidebar.create())
 
 let content = document.createElement('div')
 content.className = 'content'
