@@ -8,7 +8,7 @@ class Content {
 
     create() {
         let content = document.createElement('div')
-        content.className = 'content'
+        content.className = 'content col'
         content.appendChild(this.createTabs())
         return content
     }

@@ -2,8 +2,6 @@
     right: 0;
     display: inline-flex;
     height: 100%;
-    /*noinspection CssInvalidPropertyValue*/
-    width: -webkit-fill-available;
     background-color: aliceblue;
     flex-direction: column;
 }
