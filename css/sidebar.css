@@ -3,7 +3,7 @@
     height: 100%;
     overflow-x: auto;
     overflow-y: auto;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.15);
     background-color: white;
     flex-direction: column;
     max-height: 100%;
@@ -12,9 +12,9 @@
 
 .sidebar-heading {
     margin-bottom: 0;
-    padding: 1.5rem;
+    padding: 1.5em;
     color: cornflowerblue;
-    font-size: .7875rem;
+    font-size: .7875em;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .2em;
@@ -24,19 +24,19 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: 0.5rem;
+    padding: 0.5em;
 }
 
 .sidebar-btn-group > .splitter {
-    height: 1rem;
-    width: 0.0625rem;
+    height: 1em;
+    width: 0.0625em;
     background-color: dimgray;
-    margin: 0 0.1875rem;
+    margin: 0 0.1875em;
 }
 
 .sidebar-btn {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.25em;
+    height: 1.25em;
     color: dodgerblue;
     cursor: pointer;
     -webkit-user-select: none;
@@ -46,8 +46,8 @@
     border: 1px solid;
     border-radius: 50%;
     padding: 0 0;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    margin: 0 0.5rem;
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.15);
+    margin: 0 0.5em;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -72,41 +72,41 @@
 
 .sidebar-search-label {
     align-items: center;
-    padding: 0.5rem;
+    padding: 0.5em;
     position: relative;
 }
 
 .sidebar-search-input {
-    margin-right: 0.5rem;
+    margin-right: 0.5em;
     text-overflow: ellipsis;
 }
 
 .sidebar-search-btn {
-    width: 1rem !important;
-    height: 1rem !important;
-    margin: 0 0.25rem 0 0 !important;
+    width: 1em !important;
+    height: 1em !important;
+    margin: 0 0.25em 0 0 !important;
 }
 
 .sidebar-search-filter {
     display: flex;
-    font-size: 0.75rem;
+    font-size: 0.75em;
     position: relative;
-    padding: .5rem 1rem .5rem 1rem;
+    padding: .5em 1em .5em 1em;
     justify-content: flex-end;
     align-items: center;
     color: #084298;
     background-color: #cfe2ff;
     border-color: #b6d4fe;
-    border-radius: .25rem;
+    border-radius: .25em;
     word-break: break-all;
 }
 
 .sidebar-btn-toggle {
     display: flex;
     align-items: center;
-    font-size: 0.75rem;
+    font-size: 0.75em;
     font-weight: bold;
-    padding: .5rem .5rem;
+    padding: .5em .5em;
     border-bottom: 1px solid #dee2e6;
 }
 
@@ -129,7 +129,7 @@
     align-items: center;
     color: dodgerblue;
     margin-left: auto;
-    margin-right: .5rem;
+    margin-right: .5em;
 }
 
 .sidebar-btn-toggle[aria-expanded="true"] > .sidebar-btn-status {
@@ -144,19 +144,19 @@
 .sidebar-toggle-list {
     display: flex;
     flex-direction: column;
-    min-height: 1.5rem;
+    min-height: 1.5em;
     background-color: #f8f9fa;
     margin: 0;
-    padding: 0 0 0 1rem;
-    -webkit-box-shadow: inset 4px -2px 0.25rem 0 rgba(0, 0, 0, .08);
-    box-shadow: inset .25rem -.125rem 0.25rem 0 rgba(0, 0, 0, .08);
+    padding: 0 0 0 1em;
+    -webkit-box-shadow: inset 4px -2px 0.25em 0 rgba(0, 0, 0, .08);
+    box-shadow: inset .25em -.125em 0.25em 0 rgba(0, 0, 0, .08);
 }
 
 .sidebar-toggle-list-btn {
     display: flex;
     align-items: center;
-    font-size: .75rem;
-    padding: .5rem;
+    font-size: .75em;
+    padding: .5em;
     border-top: 1px solid rgb(222, 226, 230);
 }
 
@@ -169,8 +169,8 @@
 }
 
 .sidebar-toggle-list-element {
-    font-size: .625rem;
-    padding: .5rem;
+    font-size: .625em;
+    padding: .5em;
     border-top: 1px solid rgb(222, 226, 230);
     word-break: break-all;
 }
@@ -188,10 +188,10 @@
     align-items: center;
     justify-content: start;
     flex-direction: row;
-    font-size: .75rem;
-    padding: .25rem 1rem;
+    font-size: .75em;
+    padding: .25em 1em;
     border-top: 1px solid rgb(222, 226, 230);
-    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+    box-shadow: 0 .5em 1em rgba(0, 0, 0, .15);
 }
 
 .sidebar-version > p {
