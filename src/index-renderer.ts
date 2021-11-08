@@ -1,8 +1,8 @@
-import {Sidebar} from "./ui/Sidebar/Sidebar";
+import {Sidebar} from "./ui/sidebar/Sidebar";
 import {Tooltip} from "bootstrap";
 import {Modals} from "./ui/modals";
 import {Toasts} from "./ui/toasts";
-import {Content} from "./ui/content";
+import {Content} from "./ui/content/Content";
 
 document.getElementById('tail_script')?.remove()
 
@@ -14,11 +14,7 @@ let main = document.createElement('main')
 document.body.appendChild(main)
 
 main.appendChild(Sidebar.create())
-
-let content = document.createElement('div')
-content.className = 'content'
-main.appendChild(content)
-content.appendChild(Content.createFragment())
+main.appendChild(Content.create())
 
 let modals = new Modals()
 modals.init(document.body)

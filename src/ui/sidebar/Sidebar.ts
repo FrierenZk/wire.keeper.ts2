@@ -3,7 +3,7 @@ import {ConnectionList} from "./ConnectionList";
 import {SearchLabel} from "./SearchLabel";
 import {SidebarButtons} from "./SidebarButtons";
 
-export class Sidebar {
+class Sidebar {
     static create() {
         return new Sidebar().create()
     }
@@ -55,3 +55,5 @@ export class Sidebar {
         return fragment
     }
 }
+
+export {Sidebar}
