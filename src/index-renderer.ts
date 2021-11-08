@@ -1,4 +1,4 @@
-import {Sidebar} from "./ui/sidebar";
+import {Sidebar} from "./ui/Sidebar/Sidebar";
 import {Tooltip} from "bootstrap";
 import {Modals} from "./ui/modals";
 import {Toasts} from "./ui/toasts";
