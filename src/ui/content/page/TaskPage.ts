@@ -1,212 +1,24 @@
-import {randomId} from "./random";
-import {readLocal} from "../common/resources";
+import {APage} from "./APage";
 import {ipcRenderer, IpcRendererEvent} from "electron";
-import {parseMap} from "../common/parser";
-
-let selectHost = 'None';
-let selectTask = 'None'
-
-export class Content {
-    static createFragment() {
-        let fragment = document.createDocumentFragment()
-
-        let tabSet = new TabSet()
-        fragment.appendChild(tabSet.create())
-
-        ipcRenderer.on('ui-select-task', (event, args) => {
-            if (args instanceof Array) {
-                selectHost = args[0]
-                selectTask = args[1]
-                if (selectHost && selectTask) tabSet.openTaskTab()
-            }
-        })
-
-        return fragment
-    }
-}
-
-class TabSet {
-    protected tabDiv = document.createElement('div')
-    protected pageContainer = document.createElement('div')
-    protected map = new Map<string, TabItem>()
-    protected currentPage: Page | null = null
-    protected pageList: Array<PageBuilder> = [{
-        label: `${readLocal('ui.content.label.task')}`,
-        newPage: () => new TaskPage()
-    },]
-
-    public create() {
-        let fragment = document.createDocumentFragment()
-
-        let tabSet = document.createElement('div')
-        tabSet.className = 'content-tab-set'
-        fragment.appendChild(tabSet)
-
-        tabSet.appendChild(this.tabDiv)
-        this.tabDiv.className = 'p-0 m-0 d-inline-flex flex-row'
-        this.tabDiv.style.minHeight = '2rem'
-
-        let addBtn = document.createElement('div')
-        addBtn.id = randomId('button')
-        addBtn.className = 'content-tab-btn'
-        addBtn.setAttribute('data-bs-toggle', 'dropdown')
-        addBtn.setAttribute('aria-expanded', 'false')
-        addBtn.innerHTML = `
-            <svg width="1.5rem" height="1.5rem" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-            </svg>`
-        tabSet.appendChild(addBtn)
-
-        let dropdown = document.createElement('ul')
-        tabSet.appendChild(dropdown)
-        dropdown.className = 'dropdown-menu'
-        dropdown.style.fontSize = '0.75rem'
-        dropdown.setAttribute('aria-labelledby', addBtn.id)
-        dropdown.innerHTML = '<li class="dropdown-item">example</li>'
-
-        fragment.appendChild(this.pageContainer)
-        this.pageContainer.className = 'content-page'
-
-        addBtn.addEventListener('click', () => {
-            while (dropdown.hasChildNodes()) dropdown.lastChild?.remove()
-            let fragment = document.createDocumentFragment()
-            this.pageList.forEach(value => {
-                if (this.map.has(value.label!)) return
-                let li = document.createElement('li')
-                li.textContent = value.label!
-                li.className = 'dropdown-item user-select-none'
-                li.onclick = () => {
-                    this.appendTabItem(value)
-                }
-                fragment.appendChild(li)
-            })
-            dropdown.appendChild(fragment)
-        })
-
-        return fragment
-    }
-
-    public openTaskTab() {
-        let label = readLocal('ui.content.label.task')
-        if (this.map.has(label)) {
-            this.map.get(label)?.active()
-        } else {
-            let value = this.pageList.find(value => value?.label === label)
-            if (value) this.appendTabItem(value, true)
-        }
-    }
-
-    protected appendTabItem(builder: PageBuilder, select: boolean = false) {
-        let item = new TabItem()
-        let label = builder.label!
-        let page = builder.newPage!()!
-        this.tabDiv.appendChild(item.create(label))
-        this.map.set(label, item)
-        item.onClick = () => {
-            this.map.forEach((value, key) => {
-                if (key != label) value.deactivate()
-            })
-            this.updatePage(page)
-        }
-        item.onRemove = () => {
-            if (this.currentPage === page) {
-                this.currentPage.remove()
-                this.currentPage = null
-                while (this.pageContainer.hasChildNodes()) this.pageContainer.lastChild?.remove()
-            }
-            this.map.delete(label)
-        }
-        if (select) item.active()
-    }
-
-    protected updatePage(page: Page) {
-        this.currentPage?.remove()
-        while (this.pageContainer.hasChildNodes()) this.pageContainer.lastChild?.remove()
-
-        this.currentPage = page
-        page.create().then(r => {
-            this.pageContainer.appendChild(r)
-        })
-    }
-}
-
-class TabItem {
-    public onClick: (() => void) | null = null
-    public onRemove: (() => void) | null = null
-    protected tab = document.createElement('div')
-
-    public create(title: string) {
-        this.tab.className = 'content-tab-item'
-        this.tab.setAttribute('custom-active', 'false')
-        this.tab.onclick = () => {
-            this.tab.setAttribute('custom-active', 'true')
-            if (this.onClick) this.onClick()
-        }
-        this.tab.textContent = title
-        let xBtn = document.createElement('div')
-        this.tab.appendChild(xBtn)
-        xBtn.className = 'content-tab-item-x'
-        xBtn.innerHTML = `
-            <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-            </svg>`
-        xBtn.addEventListener('click', (e) => {
-            e.cancelBubble = true
-            this.tab.remove()
-            if (this.onRemove) this.onRemove()
-        })
-        return this.tab
-    }
-
-    public active() {
-        this.tab.click()
-    }
-
-    public deactivate() {
-        this.tab.setAttribute('custom-active', 'false')
-    }
-}
-
-abstract class PageBuilder {
-    label: string | undefined
-    newPage: (() => Page) | undefined
-}
-
-interface Page {
-    create(): Promise<DocumentFragment>
-
-    remove(): void
-}
-
-abstract class AListener {
-    protected rendererListeners: Map<string, Array<(event: IpcRendererEvent, args: any) => void>> = new Map()
-
-    protected bindRendererListeners(channel: string, func: (event: IpcRendererEvent, args: any) => void) {
-        if (!this.rendererListeners.has(channel)) this.rendererListeners.set(channel, [])
-        this.rendererListeners.get(channel)!.push(func)
-        ipcRenderer.on(channel, func)
-    }
-
-    protected removeRendererListeners() {
-        this.rendererListeners.forEach((value, key) =>
-            value.forEach(func => ipcRenderer.removeListener(key, func)))
-    }
-}
-
-abstract class APage extends AListener implements Page {
-    protected cleanList: Array<HTMLElement> = []
-
-    abstract create(): Promise<DocumentFragment>
-
-    remove(): void {
-        this.cleanList.forEach(value => value.remove())
-        this.removeRendererListeners()
-    }
-}
+import {readLocal} from "../../../common/resources";
+import {parseMap} from "../../../common/parser";
 
 class TaskPage extends APage {
     protected updateListeners: Array<(host: string, task: string) => void> = []
-    protected updateInfo: (() => void) | null = null
+    protected updateInfo: ((host: string, task: string) => void) | null = null
+
+    protected selectHost: string = 'None'
+    protected selectTask: string = 'None'
+
+    preSet(args: any): void {
+        if (args) try {
+            let arr = Array.from<string>(args)
+            this.selectHost = arr[0]
+            this.selectTask = arr[1]
+        } catch (e) {
+            console.error(e)
+        }
+    }
 
     public async create() {
         let fragment = document.createDocumentFragment()
@@ -216,9 +28,9 @@ class TaskPage extends APage {
 
         this.bindRendererListeners('ui-select-task', (event: IpcRendererEvent, args: any) => {
             try {
-                let host = args[0]
-                let task = args[1]
-                this.updateListeners.forEach(value => value(host, task))
+                this.selectHost = args[0]
+                this.selectTask = args[1]
+                this.updateListeners.forEach(value => value(this.selectHost, this.selectTask))
             } catch (e) {
                 console.error(e)
             }
@@ -274,7 +86,7 @@ class TaskPage extends APage {
         title.appendChild(titleContent)
         titleContent.className = 'body'
         let update = ((host: string, task: string) => titleContent.textContent = `${host} / ${task}`)
-        update(selectHost, selectTask)
+        update(this.selectHost, this.selectTask)
         this.updateListeners.push(update)
 
         return fragment
@@ -310,7 +122,7 @@ class TaskPage extends APage {
                 <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
             </svg>`
         play.addEventListener('click', ev => {
-            ipcRenderer.invoke('core-start-task:' + selectHost, selectTask).then()
+            ipcRenderer.invoke('core-start-task:' + this.selectHost, this.selectTask).then()
             ev.cancelBubble
         })
 
@@ -320,7 +132,7 @@ class TaskPage extends APage {
                 <path d="M5.921 11.9 1.353 8.62a.719.719 0 0 1 0-1.238L5.921 4.1A.716.716 0 0 1 7 4.719V6c1.5 0 6 0 7 8-2.5-4.5-7-4-7-4v1.281c0 .56-.606.898-1.079.62z"/>
             </svg>`
         playForce.addEventListener('click', ev => {
-            ipcRenderer.invoke('core-start-task-force:' + selectHost, selectTask).then()
+            ipcRenderer.invoke('core-start-task-force:' + this.selectHost, this.selectTask).then()
             ev.cancelBubble
         })
 
@@ -329,8 +141,9 @@ class TaskPage extends APage {
             <svg width="1.5rem" height="1.5rem" fill="currentColor" class="bi bi-justify-left" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M2 12.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
             </svg>`
-        customPlay.addEventListener('click', ev => {
-            //TODO
+        customPlay.addEventListener('click', async (ev) => {
+            let r = await ipcRenderer.invoke('core-get-task-info:' + this.selectHost, this.selectTask)
+            ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {'mode': 'run', 'config': r}).then()
             ev.cancelBubble
         })
 
@@ -364,7 +177,7 @@ class TaskPage extends APage {
                 <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
             </svg>`
         refresh.addEventListener('click', ev => {
-            if (this.updateInfo) this.updateInfo()
+            if (this.updateInfo) this.updateInfo(this.selectHost, this.selectTask)
             ev.cancelBubble
         })
 
@@ -373,8 +186,9 @@ class TaskPage extends APage {
             <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
                 <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
             </svg>`
-        edit.addEventListener('click', ev => {
-            //TODO
+        edit.addEventListener('click', async (ev) => {
+            let r = await ipcRenderer.invoke('core-get-task-info:' + this.selectHost, this.selectTask)
+            ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {'mode': 'edit', 'config': r}).then()
             ev.cancelBubble
         })
 
@@ -383,8 +197,9 @@ class TaskPage extends APage {
             <svg width="1.25rem" height="1.25rem" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
             </svg>`
-        create.addEventListener('click', ev => {
-            //TODO
+        create.addEventListener('click', async (ev) => {
+            let r = await ipcRenderer.invoke('core-get-task-info:' + this.selectHost, this.selectTask)
+            ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {'mode': 'create', 'config': r}).then()
             ev.cancelBubble
         })
 
@@ -465,8 +280,8 @@ class TaskPage extends APage {
             })
         }
 
-        this.updateInfo = () => {
-            ipcRenderer.invoke('core-get-task-info:' + selectHost, selectTask).then(r => {
+        this.updateInfo = (host: string, task: string) => {
+            ipcRenderer.invoke('core-get-task-info:' + host, task).then(r => {
                 if (r) {
                     Array.from(card.getElementsByClassName('info-item-div')).forEach(value => value.remove())
                     createItem('name', r.name)
@@ -478,10 +293,13 @@ class TaskPage extends APage {
         }
 
         try {
-            this.updateInfo()
+            this.updateInfo(this.selectHost, this.selectTask)
         } catch (ignore) {
         }
+        this.updateListeners.push(this.updateInfo)
 
         return fragment
     }
 }
+
+export {TaskPage}
