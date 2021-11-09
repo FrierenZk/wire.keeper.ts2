@@ -1,5 +1,5 @@
 import * as io from 'socket.io-client'
-import {ipcMain} from "electron";
+import {ipcMain, IpcMainInvokeEvent} from "electron";
 import {readLocal} from "../common/resources";
 import {clearInterval, setInterval} from "timers";
 import {readFile, renameSync, writeFileSync} from 'fs'
@@ -196,17 +196,15 @@ class Connection {
         }))
         ipcMain.handle('core-start-task:' + this.host, (event, args) => {
             this.socket?.emit('add_task', args, async (data: string) => {
-                let msg = readLocal('core.connection.start.task.status', this.host, args, data)
-                if (data.trim() == 'Success') event.sender.send('ui-toast-show', msg)
-                else event.sender.send('ui-toast-show-alert', msg)
+                this.showToast(readLocal('core.connection.start.task.status', this.host, args, data),
+                    () => data.trim() == 'Success', event)
             })
         })
         ipcMain.handle('core-start-task-force:' + this.host, (event, args) => {
             this.socket?.emit('add_task', JSON.stringify({name: args, extraParas: {force: true}}),
                 async (data: string) => {
-                    let msg = readLocal('core.connection.start.task.status', this.host, args, data)
-                    if (data.trim() == 'Success') event.sender.send('ui-toast-show', msg)
-                    else event.sender.send('ui-toast-show-alert', msg)
+                    this.showToast(readLocal('core.connection.start.task.status', this.host, args, data),
+                        () => data.trim() == 'Success', event)
                 })
         })
         ipcMain.handle('core-get-task-info:' + this.host, (async (event, args) => {
@@ -217,6 +215,27 @@ class Connection {
             await waitUntil(() => (ret != null), 3000)
             return ret
         }))
+        ipcMain.handle('core-start-custom-task', async (event, args) => {
+            this.socket?.emit('add_task', JSON.stringify({
+                name: String(args.name),
+                config: args
+            }), async (data: string) => {
+                this.showToast(readLocal('core.connection.start.task.status', this.host, args.name, data),
+                    () => data.trim() == 'Success', event)
+            })
+        })
+        ipcMain.handle('core-modify-config', async (event, args) => {
+            this.socket?.emit('modify_config', JSON.stringify(args), async (data: string) => {
+                this.showToast(readLocal('core.connection.modify.config.status', this.host, args.name, data),
+                    () => data.trim() == 'Success', event)
+            })
+        })
+        ipcMain.handle('core-create-config', async (event, args) => {
+            this.socket?.emit('add_config', JSON.stringify(args), async (data: string) => {
+                this.showToast(readLocal('core.connection.create.config.status', this.host, args.name, data),
+                    () => data.trim() == 'Success', event)
+            })
+        })
         // ipcMain.handle('core-stop-task:' + this.host, ((event, args) => {
         //     this.socket?.emit('stop_task', args, async (data: string) => {
         //         let msg = readLocal('core.connection.stop.task.status', this.host, args, data)
@@ -229,6 +248,11 @@ class Connection {
         //         if (data) event.sender.send('ui-get-task-status-reply:' + this.host, data)
         //     })
         // }))
+    }
+
+    protected showToast(msg: string, fn: () => boolean, event: IpcMainInvokeEvent) {
+        if (fn()) event.sender.send('ui-toast-show', msg)
+        else event.sender.send('ui-toast-show-alert', msg)
     }
 }
 
