@@ -2,6 +2,8 @@ import {APage} from "./APage";
 import {ObserverInputField} from "../../databingding/ObserverInputField";
 import {parseMap} from "../../../common/parser";
 import {readLocal} from "../../../common/resources";
+import {ipcRenderer} from "electron";
+import {showConfirmModal} from "../../../index-renderer";
 
 class ConfigPage extends APage {
     protected mode: string = ''
@@ -26,11 +28,6 @@ class ConfigPage extends APage {
                     }
                 })))
             }
-            console.log(this.nameObserver)
-            console.log(this.categoryObserver)
-            console.log(this.profileObserver)
-            console.log(this.svnObserver)
-            console.log(this.otherObservers)
         }
     }
 
@@ -50,11 +47,11 @@ class ConfigPage extends APage {
 
         let header = document.createElement('div')
         div.appendChild(header)
-        header.className = 'w-100 border-bottom d-flex align-items-center'
+        header.className = 'col-12 border-bottom d-flex align-items-center'
 
         let title = document.createElement('div')
         header.appendChild(title)
-        title.className = 'ps-4 me-auto fs-4 fw-bolder user-select-none'
+        title.className = 'ps-4 me-auto fs-4 fw-bolder user-select-none col'
 
         let buttonDiv = document.createElement('div')
         header.appendChild(buttonDiv)
@@ -73,7 +70,7 @@ class ConfigPage extends APage {
                 title.textContent = readLocal('ui.content.page.config.title.run')
                 let btn = createBtn(readLocal('ui.content.page.config.btn.run'))
                 btn.addEventListener('click', (ev) => {
-                    //TODO
+                    ipcRenderer.invoke('core-start-custom-task', this.package()).then()
                     ev.cancelBubble
                 })
                 break
@@ -81,7 +78,9 @@ class ConfigPage extends APage {
                 title.textContent = readLocal('ui.content.page.config.title.edit')
                 let btn2 = createBtn(readLocal('ui.content.page.config.btn.save'))
                 btn2.addEventListener('click', async (ev) => {
-                    //TODO
+                    showConfirmModal(readLocal('ui.content.page.config.confirm.edit', this.nameObserver.get()), () => {
+                        ipcRenderer.invoke('core-modify-config', this.package()).then()
+                    })
                     ev.cancelBubble
                 })
                 break
@@ -89,7 +88,9 @@ class ConfigPage extends APage {
                 title.textContent = readLocal('ui.content.page.config.title.create')
                 let btn3 = createBtn(readLocal('ui.content.page.config.btn.save'))
                 btn3.addEventListener('click', async (ev) => {
-                    //TODO
+                    showConfirmModal(readLocal('ui.content.page.config.confirm.create', this.nameObserver.get()), () => {
+                        ipcRenderer.invoke('core-create-config', this.package()).then()
+                    })
                     ev.cancelBubble
                 })
                 break
@@ -100,7 +101,7 @@ class ConfigPage extends APage {
 
     public createContent() {
         let div = document.createElement('div')
-        div.className = 'd-flex flex-row'
+        div.className = 'd-flex flex-row row'
         this.cleanList.push(div)
 
         let infos = document.createElement('div')
@@ -115,17 +116,17 @@ class ConfigPage extends APage {
         ].forEach(value => {
             let card = document.createElement('div')
             infos.appendChild(card)
-            card.className = 'content-page-config-card'
+            card.className = 'content-page-config-card row-12'
 
             let title = document.createElement('div')
             card.appendChild(title)
-            title.className = 'card-header fw-bolder user-select-none'
+            title.className = 'card-header fw-bolder user-select-none row-12'
             title.textContent = value.label
 
 
             let body = document.createElement('div')
             card.appendChild(body)
-            body.className = 'card-body'
+            body.className = 'card-body row-12'
 
             let form = document.createElement('form')
             body.appendChild(form)
@@ -137,7 +138,7 @@ class ConfigPage extends APage {
             let input = document.createElement('input')
             inputGroup.appendChild(input)
             input.className = 'form-control'
-            input.style.fontSize = '.75rem'
+            input.style.fontSize = '.75em'
             input.setAttribute('disabled', '')
             input.setAttribute('readonly', '')
             value.field.setBinding(input)
@@ -194,13 +195,18 @@ class ConfigPage extends APage {
             })
         })
 
+        div.appendChild(this.createExtras())
+
+        return div
+    }
+
+    protected createExtras() {
         let extra = document.createElement('div')
-        div.appendChild(extra)
         extra.className = 'content-page-config-card col'
 
         let extraHeader = document.createElement('div')
         extra.appendChild(extraHeader)
-        extraHeader.className = 'card-header ms-auto me-0 d-flex flex-row-reverse'
+        extraHeader.className = 'card-header ms-auto me-0 d-flex flex-row-reverse row-12'
 
         let extraTitle = document.createElement('div')
         extraHeader.appendChild(extraTitle)
@@ -218,55 +224,208 @@ class ConfigPage extends APage {
 
         let extraBody = document.createElement('div')
         extra.appendChild(extraBody)
-        extraBody.className = 'card-body'
-        extraBody.style.borderTopLeftRadius = '.5rem'
+        extraBody.className = 'card-body row-12'
+        extraBody.style.borderTopLeftRadius = '.5em'
         extraBody.style.borderTopRightRadius = '0'
+
+        let btnMap: Map<string, HTMLDivElement> = new Map()
 
         extraEditBtn.addEventListener('click', ev => {
             extraHeader.removeChild(extraEditBtn)
             extraHeader.appendChild(extraCancelBtn)
+            btnMap.forEach((value, _) => {
+                value.hidden = false
+            })
             ev.cancelBubble
         })
 
         extraCancelBtn.addEventListener('click', ev => {
             extraHeader.removeChild(extraCancelBtn)
             extraHeader.appendChild(extraEditBtn)
+            btnMap.forEach((value, _) => {
+                value.hidden = true
+            })
             ev.cancelBubble
         })
 
-        let createItem = (key: string, value: ObserverInputField<any>) => {
+        let cssText = 'font-size: 0.625em;color: dodgerblue;left: 1em;top: -.5em;text-align: center;background-color: white;border-radius: .5em;'
+
+        let createInput = (title: string, field: ObserverInputField<any> | null = null, readonly: boolean = false, value: string = '') => {
+            let div = document.createElement('div')
+            div.className = 'd-flex position-relative'
+
+            let titleDiv = document.createElement('div')
+            div.appendChild(titleDiv)
+            titleDiv.className = 'user-select-none position-absolute px-1'
+            titleDiv.style.cssText = cssText
+            titleDiv.textContent = title
+
+            let valueDiv = document.createElement('input')
+            div.appendChild(valueDiv)
+            valueDiv.className = 'form-control'
+            valueDiv.style.fontSize = '.75em'
+
+            if (readonly) {
+                valueDiv.setAttribute('disabled', '')
+                valueDiv.setAttribute('readonly', '')
+                valueDiv.value = value
+            } else if (field) field.setBinding(valueDiv)
+
+            return div
+        }
+
+        let createNewItem = (key: string, value: ObserverInputField<any>) => {
             let item = document.createElement('div')
-            item.className = 'extra-item d-flex align-items-center justify-content-center'
+            item.className = 'extra-item d-flex align-items-center justify-content-around py-2'
 
             let xBtn = document.createElement('div')
             item.appendChild(xBtn)
-            xBtn.className = 'extra-x-btn'
+            xBtn.className = 'btn-cs-circle mx-2'
+            xBtn.style.color = 'red'
+            xBtn.hidden = true
+            xBtn.innerHTML = '<i class="bi bi-node-minus"></i>'
+            btnMap.set(key, xBtn)
+
+            let keyDiv = createInput('Key', null, true, key)
+            item.appendChild(keyDiv)
+            keyDiv.classList.add('col')
+            keyDiv.classList.add('mx-2')
 
             let form = document.createElement('form')
             item.appendChild(form)
-            form.className = 'me-1'
+            form.className = 'col mx-2'
 
-            let inputGroup = document.createElement('div')
-            form.appendChild(inputGroup)
-            inputGroup.className = 'input-group'
+            let valueDiv = createInput('Value', value)
+            form.appendChild(valueDiv)
 
-            let keyDiv = document.createElement('input')
-            inputGroup.appendChild(keyDiv)
-            keyDiv.className = 'form-control'
-            keyDiv.textContent = key
+            let setDisabled = () => {
+                Array.from(valueDiv.children).forEach(el => {
+                    if (el instanceof HTMLInputElement) {
+                        el.setAttribute('disabled', '')
+                        el.setAttribute('readonly', '')
+                    }
+                })
+            }
 
-            let valueDiv = document.createElement('input')
-            inputGroup.appendChild(valueDiv)
-            valueDiv.className = 'form-control'
-            value.setBinding(valueDiv)
+            let setEnabled = () => {
+                Array.from(valueDiv.children).forEach(el => {
+                    if (el instanceof HTMLInputElement) {
+                        el.removeAttribute('disabled')
+                        el.removeAttribute('readonly')
+                    }
+                })
+            }
+            setDisabled()
+
+            let btnDiv = document.createElement('div')
+            item.appendChild(btnDiv)
+            btnDiv.className = 'd-flex flex-row align-items-center mx-2'
+
+            let editBtn = document.createElement('div')
+            btnDiv.appendChild(editBtn)
+            editBtn.className = 'btn-cs-circle'
+            editBtn.innerHTML = '<i class="bi bi-text-indent-right"></i>'
+
+            let checkBtn = document.createElement('div')
+            checkBtn.className = 'btn-cs-circle mx-1'
+            checkBtn.innerHTML = '<i class="bi bi-check"></i>'
+
+            let cancelBtn = document.createElement('div')
+            cancelBtn.className = 'btn-cs-circle mx-1'
+            cancelBtn.style.color = 'gray'
+            cancelBtn.innerHTML = '<i class="bi bi-x"></i>'
 
             xBtn.addEventListener('click', ev => {
-                item.remove()
+                showConfirmModal(readLocal('ui.content.page.config.extra.item.delete', key), () => {
+                    item.remove()
+                    this.otherObservers.delete(key)
+                    btnMap.delete(key)
+                    ev.cancelBubble
+                })
+            })
+
+            let tmp = value.get()
+
+            editBtn.addEventListener('click', ev => {
+                tmp = value.get()
+                setEnabled()
+                btnDiv.appendChild(checkBtn)
+                btnDiv.appendChild(cancelBtn)
+                btnDiv.removeChild(editBtn)
+                ev.cancelBubble
+            })
+
+            cancelBtn.addEventListener('click', ev => {
+                setDisabled()
+                value.set(tmp)
+                btnDiv.removeChild(checkBtn)
+                btnDiv.removeChild(cancelBtn)
+                btnDiv.appendChild(editBtn)
+                ev.cancelBubble
+            })
+
+            checkBtn.addEventListener('click', ev => {
+                setDisabled()
+                btnDiv.removeChild(checkBtn)
+                btnDiv.removeChild(cancelBtn)
+                btnDiv.appendChild(editBtn)
                 ev.cancelBubble
             })
 
             return item
         }
+
+        this.otherObservers.forEach(((value, key) => {
+            extraBody.appendChild(createNewItem(key, value))
+        }))
+
+        let createItem = document.createElement('div')
+        createItem.className = 'extra-item d-flex flex-row justify-content-around'
+
+        let keyDiv = document.createElement('div')
+        createItem.appendChild(keyDiv)
+        keyDiv.className = 'd-flex position-relative my-2 mx-2 col'
+
+        let keyTitle = document.createElement('div')
+        keyDiv.appendChild(keyTitle)
+        keyTitle.className = 'user-select-none position-absolute px-1'
+        keyTitle.textContent = 'Key'
+        keyTitle.style.cssText = cssText
+
+        let keyValue = document.createElement('input')
+        keyDiv.appendChild(keyValue)
+        keyValue.className = 'form-control'
+        keyValue.style.fontSize = '.75em'
+
+        let valueDiv = document.createElement('div')
+        createItem.appendChild(valueDiv)
+        valueDiv.className = keyDiv.className
+
+        let valueTitle = document.createElement('div')
+        valueDiv.appendChild(valueTitle)
+        valueTitle.className = keyTitle.className
+        valueTitle.textContent = 'Value'
+        valueTitle.style.cssText = cssText
+
+        let valueValue = document.createElement('input')
+        valueDiv.appendChild(valueValue)
+        valueValue.className = keyValue.className
+        valueValue.style.fontSize = keyValue.style.fontSize
+
+        let btnDiv = document.createElement('div')
+        createItem.appendChild(btnDiv)
+        btnDiv.className = 'd-flex flex-row align-items-center justify-content-around mx-2'
+
+        let createConfirmBtn = document.createElement('div')
+        btnDiv.appendChild(createConfirmBtn)
+        createConfirmBtn.className = 'btn-cs-circle mx-1'
+        createConfirmBtn.innerHTML = '<i class="bi bi-check"></i>'
+
+        let createCancelBtn = document.createElement('div')
+        btnDiv.appendChild(createCancelBtn)
+        createCancelBtn.className = 'btn-cs-circle mx-1'
+        createCancelBtn.innerHTML = '<i class="bi bi-x"></i>'
+        createCancelBtn.style.color = 'gray'
 
         let addItem = document.createElement('div')
         extraBody.appendChild(addItem)
@@ -278,12 +437,67 @@ class ConfigPage extends APage {
         addBtn.className = 'extra-add-btn'
         addBtn.innerHTML = `<i class="bi bi-plus-circle"></i>`
 
-        addBtn.addEventListener('click', ev => {
-
+        createCancelBtn.addEventListener('click', ev => {
+            extraBody.removeChild(createItem)
+            keyValue.value = ''
+            valueValue.value = ''
             ev.cancelBubble
         })
 
-        return div
+        createConfirmBtn.addEventListener('click', ev => {
+            if (this.otherObservers.has(keyValue.value)) {
+                keyTitle.textContent = readLocal('ui.content.page.config.extra.create.error')
+                keyTitle.style.color = 'red'
+                setTimeout(() => {
+                    keyTitle.textContent = 'Key'
+                    keyTitle.style.color = 'dodgerblue'
+                }, 3000)
+            } else if (keyValue.value.trim().length == 0 || valueValue.value.trim().length == 0) {
+                if (keyValue.value.trim().length == 0) {
+                    keyTitle.textContent = readLocal('ui.content.page.config.extra.create.empty.key')
+                    keyTitle.style.color = 'red'
+                    setTimeout(() => {
+                        keyTitle.textContent = 'Key'
+                        keyTitle.style.color = 'dodgerblue'
+                    }, 3000)
+                }
+                if (valueValue.value.trim().length == 0) {
+                    valueTitle.textContent = readLocal('ui.content.page.config.extra.create.empty.value')
+                    valueTitle.style.color = 'red'
+                    setTimeout(() => {
+                        valueTitle.textContent = 'Value'
+                        valueTitle.style.color = 'dodgerblue'
+                    }, 3000)
+                }
+            } else {
+                let field = ObserverInputField.fromString(valueValue.value)
+                this.otherObservers.set(keyValue.value, field)
+                extraBody.insertBefore(createNewItem(keyValue.value, field), createItem)
+                createCancelBtn.click()
+                ev.cancelBubble
+            }
+        })
+
+        addBtn.addEventListener('click', ev => {
+            extraBody.insertBefore(createItem, addItem)
+            ev.cancelBubble
+        })
+
+        return extra
+    }
+
+    protected package() {
+        let extra = new Map<string, any>()
+        extra.set('svn', this.svnObserver.get())
+        this.otherObservers.forEach((value, key) => {
+            extra.set(key, value.get())
+        })
+        return {
+            name: this.nameObserver.get(),
+            category: this.categoryObserver.get(),
+            profile: this.profileObserver.get(),
+            extraParas: Object.fromEntries(extra)
+        }
     }
 }
 
