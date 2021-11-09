@@ -27,6 +27,35 @@ main {
 }
 
 /* */
+.btn-cs-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 1.5em;
+    width: 1.5em;
+    color: dodgerblue;
+    border-radius: 50%;
+    font-size: 1.25em;
+}
+
+.btn-cs-circle:hover{
+    background-color: #e6e6e6;
+    cursor: pointer;
+}
+
+.btn-cs-circle:active{
+    background-color: #cccccc;
+}
+
+/* */
 .user-select-none {
     user-select: none !important;
+}
+
+.position-relative {
+    position: relative !important;
+}
+
+.position-absolute {
+    position: absolute !important;
 }
