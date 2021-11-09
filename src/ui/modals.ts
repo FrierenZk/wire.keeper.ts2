@@ -59,7 +59,13 @@ class Modals {
             `<button class="btn btn-primary" id="${confirmId}">${readLocal('ui.button.confirm')}</button>`
         let modal = this.buildModal(text, null, footer)
         let t = new Modal(modal)
-        modal.getElementsByClassName('modal-dialog').item(0)?.classList.add('modal-sm')
+        let div = modal.getElementsByClassName('modal-dialog').item(0)
+        if (div) {
+            div.classList.add('modal-sm')
+            div.classList.add('d-flex')
+            div.classList.add('align-items-center')
+            div.classList.add('h-75')
+        }
         document.getElementById(confirmId)!!.onclick = () => {
             callback()
             t.hide()
