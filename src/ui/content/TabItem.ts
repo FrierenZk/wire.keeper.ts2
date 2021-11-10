@@ -1,6 +1,10 @@
+import {Page} from "./page/Page";
+
 class TabItem {
     public onClick: (() => void) | null = null
     public onRemove: (() => void) | null = null
+    public remove: (() => void) | null = null
+    public page: Page | null = null
     protected tab = document.createElement('div')
 
     public create(title: string) {
@@ -23,6 +27,7 @@ class TabItem {
             this.tab.remove()
             if (this.onRemove) this.onRemove()
         })
+        this.remove = () => xBtn.click()
         return this.tab
     }
 

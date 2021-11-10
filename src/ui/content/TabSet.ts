@@ -58,6 +58,7 @@ class TabSet {
             let fragment = document.createDocumentFragment()
             this.pageList.forEach(value => {
                 if (value.hide) return
+                if (this.map.has(value.label)) return
                 let li = document.createElement('li')
                 li.textContent = value.label
                 li.className = 'dropdown-item user-select-none'
@@ -75,6 +76,7 @@ class TabSet {
     public openTaskTab(arr: Array<string>) {
         let label = readLocal('ui.content.label.task')
         if (this.map.has(label)) {
+            this.map.get(label)?.page?.preSet(arr)
             this.map.get(label)?.active()
         } else {
             let value = this.pageList.find(value => value?.label === label)
@@ -85,7 +87,8 @@ class TabSet {
     public openConfigurationTab(args: any) {
         let label = readLocal('ui.content.label.configuration')
         if (this.map.has(label)) {
-            this.map.get(label)?.onRemove!()
+            let item = this.map.get(label)
+            if (item?.remove) item.remove()
             this.map.delete(label)
         }
         let value = this.pageList.find(value => value?.label === label)
@@ -99,6 +102,7 @@ class TabSet {
         if (para) page.preSet(para)
         this.tabDiv.appendChild(item.create(label))
         this.map.set(label, item)
+        item.page = page
         item.onClick = () => {
             this.map.forEach((value, key) => {
                 if (key != label) value.deactivate()
