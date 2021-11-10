@@ -215,7 +215,7 @@ class Connection {
             await waitUntil(() => (ret != null), 3000)
             return ret
         }))
-        ipcMain.handle('core-start-custom-task', async (event, args) => {
+        ipcMain.handle('core-start-custom-task:' + this.host, async (event, args) => {
             this.socket?.emit('add_task', JSON.stringify({
                 name: String(args.name),
                 config: args
@@ -224,13 +224,13 @@ class Connection {
                     () => data.trim() == 'Success', event)
             })
         })
-        ipcMain.handle('core-modify-config', async (event, args) => {
+        ipcMain.handle('core-modify-config:' + this.host, async (event, args) => {
             this.socket?.emit('modify_config', JSON.stringify(args), async (data: string) => {
                 this.showToast(readLocal('core.connection.modify.config.status', this.host, args.name, data),
                     () => data.trim() == 'Success', event)
             })
         })
-        ipcMain.handle('core-create-config', async (event, args) => {
+        ipcMain.handle('core-create-config:' + this.host, async (event, args) => {
             this.socket?.emit('add_config', JSON.stringify(args), async (data: string) => {
                 this.showToast(readLocal('core.connection.create.config.status', this.host, args.name, data),
                     () => data.trim() == 'Success', event)

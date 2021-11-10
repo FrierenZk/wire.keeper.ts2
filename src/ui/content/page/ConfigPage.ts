@@ -7,6 +7,7 @@ import {showConfirmModal} from "../../../index-renderer";
 
 class ConfigPage extends APage {
     protected mode: string = ''
+    protected host: string = ''
     protected nameObserver = ObserverInputField.fromString('')
     protected categoryObserver = ObserverInputField.fromString('')
     protected profileObserver = ObserverInputField.fromString('')
@@ -14,20 +15,26 @@ class ConfigPage extends APage {
     protected otherObservers: Map<string, ObserverInputField<any>> = new Map()
 
     preSet(args: any): void {
-        this.mode = args[0]?.mode
-        let config = args[0]?.config
-        if (config) {
-            if (config.name) this.nameObserver = ObserverInputField.fromString(config.name)
-            if (config.category) this.categoryObserver = ObserverInputField.fromString(config.category)
-            if (config.profile) this.profileObserver = ObserverInputField.fromString(config.profile)
-            if (config.extraParas) {
-                if (config.extraParas.svn) this.svnObserver = ObserverInputField.fromString(config.extraParas.svn)
-                parseMap(JSON.stringify(config.extraParas)).forEach((((value, key) => {
-                    if (key != 'svn') {
-                        this.otherObservers.set(key, ObserverInputField.fromString(value))
-                    }
-                })))
+        try {
+            this.mode = args[0]?.mode
+            let host = args[0]?.host
+            if (host) this.host = String(host)
+            let config = args[0]?.config
+            if (config) {
+                if (config.name) this.nameObserver = ObserverInputField.fromString(config.name)
+                if (config.category) this.categoryObserver = ObserverInputField.fromString(config.category)
+                if (config.profile) this.profileObserver = ObserverInputField.fromString(config.profile)
+                if (config.extraParas) {
+                    if (config.extraParas.svn) this.svnObserver = ObserverInputField.fromString(config.extraParas.svn)
+                    parseMap(JSON.stringify(config.extraParas)).forEach((((value, key) => {
+                        if (key != 'svn') {
+                            this.otherObservers.set(key, ObserverInputField.fromString(value))
+                        }
+                    })))
+                }
             }
+        } catch (e) {
+            console.error(e)
         }
     }
 
@@ -70,7 +77,7 @@ class ConfigPage extends APage {
                 title.textContent = readLocal('ui.content.page.config.title.run')
                 let btn = createBtn(readLocal('ui.content.page.config.btn.run'))
                 btn.addEventListener('click', (ev) => {
-                    ipcRenderer.invoke('core-start-custom-task', this.package()).then()
+                    ipcRenderer.invoke('core-start-custom-task:' + this.host, this.package()).then()
                     ev.cancelBubble
                 })
                 break
@@ -79,7 +86,7 @@ class ConfigPage extends APage {
                 let btn2 = createBtn(readLocal('ui.content.page.config.btn.save'))
                 btn2.addEventListener('click', async (ev) => {
                     showConfirmModal(readLocal('ui.content.page.config.confirm.edit', this.nameObserver.get()), () => {
-                        ipcRenderer.invoke('core-modify-config', this.package()).then()
+                        ipcRenderer.invoke('core-modify-config:' + this.host, this.package()).then()
                     })
                     ev.cancelBubble
                 })
@@ -89,7 +96,7 @@ class ConfigPage extends APage {
                 let btn3 = createBtn(readLocal('ui.content.page.config.btn.save'))
                 btn3.addEventListener('click', async (ev) => {
                     showConfirmModal(readLocal('ui.content.page.config.confirm.create', this.nameObserver.get()), () => {
-                        ipcRenderer.invoke('core-create-config', this.package()).then()
+                        ipcRenderer.invoke('core-create-config:' + this.host, this.package()).then()
                     })
                     ev.cancelBubble
                 })
@@ -107,6 +114,52 @@ class ConfigPage extends APage {
         let infos = document.createElement('div')
         div.appendChild(infos)
         infos.className = 'd-flex flex-column col-4'
+
+        let hostCard = document.createElement('div')
+        infos.appendChild(hostCard)
+        hostCard.className = 'content-page-config-card row'
+
+        let hostDropdown = document.createElement('div')
+        hostCard.appendChild(hostDropdown)
+        hostDropdown.className = 'card-body'
+        hostDropdown.style.borderTopLeftRadius = '.5em'
+
+        let hostBtnDiv = document.createElement('div')
+        hostDropdown.appendChild(hostBtnDiv)
+        hostBtnDiv.className = 'btn-group dropend d-flex'
+
+        let hostBtn = document.createElement('button')
+        hostBtnDiv.appendChild(hostBtn)
+        hostBtn.className = 'btn btn-primary w-100'
+        hostBtn.type = 'button'
+
+        let hostToggle = document.createElement('button')
+        hostBtnDiv.appendChild(hostToggle)
+        hostToggle.className = 'btn btn-primary dropdown-toggle dropdown-toggle-split'
+        hostToggle.type = 'button'
+        hostToggle.setAttribute('data-bs-toggle', 'dropdown')
+        hostToggle.setAttribute('aria-expanded', 'false')
+
+        if (this.host.trim().length > 0) hostBtn.textContent = this.host
+
+        let menuDiv = document.createElement('ul')
+        hostBtnDiv.appendChild(menuDiv)
+        menuDiv.className = 'dropdown-menu'
+        menuDiv.setAttribute('aria-labelledby', 'hostDropdownButton')
+
+        ipcRenderer.invoke('core-get-connections').then(r => {
+            Array.from(r).forEach(value => {
+                let li = document.createElement('li')
+                menuDiv.appendChild(li)
+                li.innerHTML = `<a class="dropdown-item" href="#">${value}</a>`
+                li.addEventListener('click', (ev) => {
+                    this.host = String(value)
+                    hostBtn.textContent = this.host
+                    ev.cancelBubble
+                })
+                if (this.host.trim().length == 0) li.click()
+            })
+        })
 
         ;[
             {label: "name", field: this.nameObserver},

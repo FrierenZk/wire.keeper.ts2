@@ -143,7 +143,11 @@ class TaskPage extends APage {
             </svg>`
         customPlay.addEventListener('click', async (ev) => {
             let r = await ipcRenderer.invoke('core-get-task-info:' + this.selectHost, this.selectTask)
-            ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {'mode': 'run', 'config': r}).then()
+            ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {
+                'mode': 'run',
+                'config': r,
+                'host': this.selectHost
+            }).then()
             ev.cancelBubble
         })
 
@@ -188,7 +192,11 @@ class TaskPage extends APage {
             </svg>`
         edit.addEventListener('click', async (ev) => {
             let r = await ipcRenderer.invoke('core-get-task-info:' + this.selectHost, this.selectTask)
-            ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {'mode': 'edit', 'config': r}).then()
+            ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {
+                'mode': 'edit',
+                'config': r,
+                'host': this.selectHost
+            }).then()
             ev.cancelBubble
         })
 
@@ -199,7 +207,11 @@ class TaskPage extends APage {
             </svg>`
         create.addEventListener('click', async (ev) => {
             let r = await ipcRenderer.invoke('core-get-task-info:' + this.selectHost, this.selectTask)
-            ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {'mode': 'create', 'config': r}).then()
+            ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {
+                'mode': 'create',
+                'config': r,
+                'host': this.selectHost
+            }).then()
             ev.cancelBubble
         })
 
