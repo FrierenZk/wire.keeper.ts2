@@ -45,7 +45,7 @@ class TaskPage extends APage {
         let content = document.createElement('div')
         fragment.appendChild(content)
         this.cleanList.push(content)
-        content.className = 'd-flex flex-column'
+        content.className = 'd-flex flex-column row-12'
 
         content.appendChild(this.createLabel())
 
@@ -58,7 +58,7 @@ class TaskPage extends APage {
         let content = document.createElement('div')
         fragment.appendChild(content)
         this.cleanList.push(content)
-        content.className = 'd-flex flex-row'
+        content.className = 'd-flex flex-row row-12'
 
         content.appendChild(this.createButtons())
         content.appendChild(this.createInfo())

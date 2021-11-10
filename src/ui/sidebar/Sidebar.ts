@@ -10,7 +10,7 @@ class Sidebar {
 
     create() {
         let div = document.createElement('div')
-        div.className = 'side-bar col-3'
+        div.className = 'side-bar col-2'
         div.appendChild(this.createContent())
         return div
     }

@@ -25,11 +25,11 @@ class TabSet {
         let fragment = document.createDocumentFragment()
 
         let tabSet = document.createElement('div')
-        tabSet.className = 'content-tab-set'
+        tabSet.className = 'content-tab-set row-12'
         fragment.appendChild(tabSet)
 
         tabSet.appendChild(this.tabDiv)
-        this.tabDiv.className = 'p-0 m-0 d-inline-flex flex-row'
+        this.tabDiv.className = 'p-0 m-0 d-inline-flex flex-row align-items-center'
         this.tabDiv.style.minHeight = '2rem'
 
         let addBtn = document.createElement('div')
@@ -51,7 +51,7 @@ class TabSet {
         dropdown.innerHTML = '<li class="dropdown-item">example</li>'
 
         fragment.appendChild(this.pageContainer)
-        this.pageContainer.className = 'content-page'
+        this.pageContainer.className = 'content-page row-12'
 
         addBtn.addEventListener('click', () => {
             while (dropdown.hasChildNodes()) dropdown.lastChild?.remove()
