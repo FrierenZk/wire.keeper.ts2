@@ -16,8 +16,8 @@ class ConnectionList {
         this.list.style.overflow = 'auto'
 
         this.buildList(['test1', 'test2', 'test3'])
-        ipcRenderer.on('ui-get-connections-reply', ((event, args) => this.buildList(Array.from(args))))
-        ipcRenderer.send('core-get-connections')
+        ipcRenderer.on('ui-update-connections', (async (event, args) => this.buildList(Array.from(args))))
+        ipcRenderer.invoke('core-get-connections').then(args => this.buildList(Array.from(args)))
         return fragment
     }
 
@@ -28,7 +28,9 @@ class ConnectionList {
     public delete() {
         if (this.select.trim().length > 0)
             showConfirmModal(readLocal('ui.sidebar.delete.title', this.select.trim()), () => {
-                ipcRenderer.send('core-delete-connection', this.select.trim())
+                ipcRenderer.invoke('core-delete-connection', this.select.trim()).then(r => {
+                    if (r) ipcRenderer.invoke('core-get-connections').then(args => this.buildList(Array.from(args)))
+                })
             })
         else showAlert(readLocal('ui.sidebar.delete.alert'))
     }

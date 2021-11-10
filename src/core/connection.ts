@@ -29,19 +29,18 @@ class ConnectionManager {
             if (flag) flag = flag && this.createConnection(args)
             if (flag) {
                 event.reply('ui-toast-show', readLocal('core.create.connection.success', args))
-                event.reply('ui-get-connections-reply', Array.from(this.map.keys()))
+                event.reply('ui-update-connections', Array.from(this.map.keys()))
             } else event.reply('ui-toast-show-alert', readLocal('core.create.connection.failed', args))
         })
-        ipcMain.on('core-delete-connection', async (event, args) => {
+        ipcMain.handle('core-delete-connection', async (event, args) => {
             let flag = this.map.has(args)
             if (flag) flag = flag && this.deleteConnection(args)
-            if (flag) {
-                event.reply('ui-toast-show', readLocal('core.delete.connection.success', args))
-                event.reply('ui-get-connections-reply', Array.from(this.map.keys()))
-            } else event.reply('ui-toast-show', readLocal('core.delete.connection.failed', args))
+            if (flag) event.sender.send('ui-toast-show', readLocal('core.delete.connection.success', args))
+            else event.sender.send('ui-toast-show', readLocal('core.delete.connection.failed', args))
+            return flag
         })
-        ipcMain.on('core-get-connections', async (event) => {
-            event.reply('ui-get-connections-reply', Array.from(this.map.keys()))
+        ipcMain.handle('core-get-connections', async (_) => {
+            return Array.from(this.map.keys())
         })
     }
 
