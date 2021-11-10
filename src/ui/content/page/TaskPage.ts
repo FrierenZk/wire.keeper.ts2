@@ -2,6 +2,7 @@ import {APage} from "./APage";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {readLocal} from "../../../common/resources";
 import {parseMap} from "../../../common/parser";
+import {showConfirmModal} from "../../../index-renderer";
 
 class TaskPage extends APage {
     protected updateListeners: Array<(host: string, task: string) => void> = []
@@ -221,7 +222,9 @@ class TaskPage extends APage {
                 <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
             </svg>`
         del.addEventListener('click', ev => {
-            //TODO
+            showConfirmModal(readLocal('ui.content.page.task.delete.confirm', this.selectHost, this.selectTask), () => {
+                ipcRenderer.invoke('core-delete-config:' + this.selectHost, this.selectTask).then()
+            })
             ev.cancelBubble
         })
 

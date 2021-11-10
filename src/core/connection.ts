@@ -235,6 +235,12 @@ class Connection {
                     () => data.trim() == 'Success', event)
             })
         })
+        ipcMain.handle('core-delete-config:' + this.host, async (event, args) => {
+            this.socket?.emit('delete_config', args, async (data: string) => {
+                this.showToast(readLocal('core.connection.delete.config.status', this.host, args.name, data),
+                    () => data.trim() == 'Success', event)
+            })
+        })
         // ipcMain.handle('core-stop-task:' + this.host, ((event, args) => {
         //     this.socket?.emit('stop_task', args, async (data: string) => {
         //         let msg = readLocal('core.connection.stop.task.status', this.host, args, data)
