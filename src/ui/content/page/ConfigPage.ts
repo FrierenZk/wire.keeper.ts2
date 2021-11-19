@@ -215,6 +215,8 @@ class ConfigPage extends APage {
             editBtn.hidden = false
             editBtn.innerHTML = `<i class="bi bi-pencil-square"></i>`
 
+            if (this.nameObserver == value.field && this.mode == 'edit') inputGroup.removeChild(editBtn)
+
             let textSnapshot: string = ''
 
             checkBtn.addEventListener('click', ev => {
