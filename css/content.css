@@ -186,7 +186,9 @@
 }
 
 .content-page-task-card-item > .info-title {
-    width: 8em;
+    width: 20%;
+    display: flex;
+    align-items: center;
     user-select: none;
     margin-left: .5em;
     font-weight: bold;
@@ -197,6 +199,7 @@
     border-left: 1px solid rgb(222, 226, 230);
     padding-left: 1em;
     width: 100%;
+    word-break: break-all;
 }
 
 .content-page-task-card-item > .info-paste {
