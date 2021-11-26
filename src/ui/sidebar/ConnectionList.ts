@@ -1,7 +1,8 @@
 import {ListItemGroup} from "./ListItemGroup";
 import {ipcRenderer} from "electron";
-import {showAlert, showConfirmModal} from "../../index-renderer";
+import {showAlert} from "../../index-renderer";
 import {readLocal} from "../../common/resources";
+import {ConfirmModal} from "../content/modal/ConfirmModal";
 
 class ConnectionList {
     protected list = document.createElement('div')
@@ -27,11 +28,11 @@ class ConnectionList {
 
     public delete() {
         if (this.select.trim().length > 0)
-            showConfirmModal(readLocal('ui.sidebar.delete.title', this.select.trim()), () => {
+            new ConfirmModal(readLocal('ui.sidebar.delete.title', this.select.trim()), () => {
                 ipcRenderer.invoke('core-delete-connection', this.select.trim()).then(r => {
                     if (r) ipcRenderer.invoke('core-get-connections').then(args => this.buildList(Array.from(args)))
                 })
-            })
+            }).show()
         else showAlert(readLocal('ui.sidebar.delete.alert'))
     }
 

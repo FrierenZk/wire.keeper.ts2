@@ -2,7 +2,7 @@ import {APage} from "./APage";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {readLocal} from "../../../common/resources";
 import {parseMap} from "../../../common/parser";
-import {showConfirmModal} from "../../../index-renderer";
+import {ConfirmModal} from "../modal/ConfirmModal";
 
 class TaskPage extends APage {
     protected updateListeners: Array<(host: string, task: string) => void> = []
@@ -196,9 +196,9 @@ class TaskPage extends APage {
         let del = document.createElement('dvi')
         del.innerHTML = `<i class="bi bi-trash-fill" style="font-size: 1.25em"></i>`
         del.addEventListener('click', ev => {
-            showConfirmModal(readLocal('ui.content.page.task.delete.confirm', this.selectHost, this.selectTask), () => {
+            new ConfirmModal(readLocal('ui.content.page.task.delete.confirm', this.selectHost, this.selectTask), () => {
                 ipcRenderer.invoke('core-delete-config:' + this.selectHost, this.selectTask).then()
-            })
+            }).show()
             ev.cancelBubble
         })
 

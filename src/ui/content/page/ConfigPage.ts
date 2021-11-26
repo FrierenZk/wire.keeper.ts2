@@ -3,7 +3,7 @@ import {ObserverInputField} from "../../databingding/ObserverInputField";
 import {parseMap} from "../../../common/parser";
 import {readLocal} from "../../../common/resources";
 import {ipcRenderer} from "electron";
-import {showConfirmModal} from "../../../index-renderer";
+import {ConfirmModal} from "../modal/ConfirmModal";
 
 class ConfigPage extends APage {
     protected mode: string = ''
@@ -85,9 +85,9 @@ class ConfigPage extends APage {
                 title.textContent = readLocal('ui.content.page.config.title.edit')
                 let btn2 = createBtn(readLocal('ui.content.page.config.btn.save'))
                 btn2.addEventListener('click', async (ev) => {
-                    showConfirmModal(readLocal('ui.content.page.config.confirm.edit', this.nameObserver.get()), () => {
+                    new ConfirmModal(readLocal('ui.content.page.config.confirm.edit', this.nameObserver.get()), () => {
                         ipcRenderer.invoke('core-modify-config:' + this.host, this.package()).then()
-                    })
+                    }).show()
                     ev.cancelBubble
                 })
                 break
@@ -95,9 +95,9 @@ class ConfigPage extends APage {
                 title.textContent = readLocal('ui.content.page.config.title.create')
                 let btn3 = createBtn(readLocal('ui.content.page.config.btn.save'))
                 btn3.addEventListener('click', async (ev) => {
-                    showConfirmModal(readLocal('ui.content.page.config.confirm.create', this.nameObserver.get()), () => {
+                    new ConfirmModal(readLocal('ui.content.page.config.confirm.create', this.nameObserver.get()), () => {
                         ipcRenderer.invoke('core-create-config:' + this.host, this.package()).then()
-                    })
+                    }).show()
                     ev.cancelBubble
                 })
                 break
@@ -126,6 +126,7 @@ class ConfigPage extends APage {
 
         let hostBtnDiv = document.createElement('div')
         hostDropdown.appendChild(hostBtnDiv)
+        // noinspection SpellCheckingInspection
         hostBtnDiv.className = 'btn-group dropend d-flex'
 
         let hostBtn = document.createElement('button')
@@ -391,12 +392,12 @@ class ConfigPage extends APage {
             cancelBtn.innerHTML = '<i class="bi bi-x"></i>'
 
             xBtn.addEventListener('click', ev => {
-                showConfirmModal(readLocal('ui.content.page.config.extra.item.delete', key), () => {
+                new ConfirmModal(readLocal('ui.content.page.config.extra.item.delete', key), () => {
                     item.remove()
                     this.otherObservers.delete(key)
                     btnMap.delete(key)
-                    ev.cancelBubble
-                })
+                }).show()
+                ev.cancelBubble
             })
 
             let tmp = value.get()
