@@ -146,7 +146,7 @@ class Connection {
 
     protected init() {
         if (this.host === '') throw 'Invalid connection host'
-        let host = this.host.includes(':') && this.host.substr(this.host.lastIndexOf(':')).length > 0 ? this.host : this.host + ':21518'
+        let host = this.host.includes(':') && this.host.substring(this.host.lastIndexOf(':')).length > 0 ? this.host : this.host + ':21518'
         console.log(host)
         this.socket = io('http://' + host, {
             timeout: 5000,
