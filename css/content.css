@@ -289,3 +289,87 @@
     font-size: 1em;
     color: red;
 }
+
+.content-page-list-card {
+    display: flex;
+    flex-direction: column;
+    margin: 1em 2em;
+    word-break: break-all;
+}
+
+.content-page-list-card > .card-body {
+    display: flex;
+    background-color: white;
+    border-radius: .5em;
+    box-shadow: 0 0.5em 1em rgba(0, 0, 0, .15);
+}
+
+.info-bubble {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin: .5em;
+    padding: .5em 1em;
+    border: 2px solid dodgerblue;
+    border-radius: 1em;
+}
+
+.info-bubble:hover {
+    border: 2px solid blue;
+}
+
+.info-bubble > .bubble-label {
+    position: absolute;
+    top: -.875em;
+    left: 1em;
+    background: white;
+    user-select: none;
+    font-weight: lighter;
+    padding: 0 .25em;
+    font-size: .875em;
+}
+
+.info-bubble > .bubble-text {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    user-select: none;
+}
+
+.bubble-text > .paste {
+    display: flex;
+    font-size: .75em;
+    align-items: center;
+    justify-content: center;
+    padding: .25em;
+    margin: 0 0 0 .5em;
+}
+
+.bubble-text > .paste:hover {
+    background-color: rgb(222, 226, 230);
+    cursor: copy;
+}
+
+.bubble-text > .paste:active {
+    background-color: rgb(182, 186, 190);
+}
+
+.log-div {
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset 0 .25em .5em rgba(0, 0, 0, .15);
+    border: 1px solid rgb(222, 226, 230);
+    margin: .5em;
+    padding: 1em;
+    border-radius: 1em;
+    max-height: calc(90vh);
+    position: relative;
+}
+
+.log-text {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: available;
+    position: relative;
+}

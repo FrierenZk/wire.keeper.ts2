@@ -10,39 +10,72 @@
 
   "core.delete.connection.success": "Connection \"$0\" has been deleted",
   "core.delete.connection.failed": "Connection \"$0\" deletion error occurred",
+
   "core.create.connection.success": "Connection \"$0\" successfully added",
   "core.create.connection.failed": "Failed to add connection \"$0\"",
 
   "core.connection.start.task.status": "[$0]: Start task $1 \"$2\"",
   "core.connection.stop.task.status": "[$0]: Stop task $1 \"$2\"",
+  "core.connection.modify.config.status": "[$0]: Modify config $1 \"$2\"",
+  "core.connection.create.config.status": "[$0]: Create config $1 \"$2\"",
+  "core.connection.delete.config.status": "[$0]: Delete config $1 \"$2\"",
 
+
+  "ui.button.confirm": "Confirm",
+  "ui.button.cancel": "Cancel",
+  "ui.button.save": "Save",
 
   "ui.sidebar.refresh": "Refresh",
   "ui.sidebar.add": "Add Connection",
   "ui.sidebar.delete": "Delete Connection",
-
   "ui.sidebar.type.to.search": "Type to search",
   "ui.sidebar.filter.html": "Filter out the task which contains \"$0\"",
-
   "ui.sidebar.delete.title": "Delete connection \"$0\" ?",
   "ui.sidebar.delete.alert": "Please select a valid connection",
-
   "ui.sidebar.native.load": "[$0]: Failed to load configs from server, use native's instead",
   "ui.sidebar.remote.load": "[$0]: Update configs success",
 
-
   "ui.content.label.task": "Task",
+  "ui.content.label.configuration": "Config",
+  "ui.content.label.list": "Task List",
+
   "ui.content.page.task.title": "Current Task",
-  "ui.content.page.task.status": "Current Status",
-  "ui.content.page.task.body.title": "Current Logs",
-  "ui.content.page.task.body.interval": "Auto Update: $0s",
-  "ui.content.page.task.body.interval.closed": "Auto Update: Closed",
-  "ui.content.page.task.body.interval.close": "Close",
-  "ui.content.page.task.body.interval.second": "1 Second",
-  "ui.content.page.task.body.interval.seconds": "$0 Seconds",
-  "ui.content.page.task.body.interval.milliseconds": "$0 Milliseconds",
-  "ui.content.page.task.body.save": "Save",
-  "ui.content.page.task.body.clear": "Clear",
-  "ui.content.page.task.body.tail.hide": "Click to show",
-  "ui.content.page.task.body.tail.show": "Click to hide"
+  "ui.content.page.task.play": "Start the task",
+  "ui.content.page.task.replay": "Enforce start the task",
+  "ui.content.page.task.custom.play": "Start a custom task",
+  "ui.content.page.task.refresh": "Refresh",
+  "ui.content.page.task.edit": "Edit current task config",
+  "ui.content.page.task.create": "Create new config from current config",
+  "ui.content.page.task.delete.confirm": "Delete config \"$0/$1\"?",
+  "ui.content.page.task.info": "Task Details",
+
+  "ui.content.page.config.title.run": "Run custom task",
+  "ui.content.page.config.title.edit": "Edit current config",
+  "ui.content.page.config.title.create": "Create config",
+
+  "ui.content.page.config.btn.run": "Run",
+  "ui.content.page.config.btn.save": "Save",
+  "ui.content.page.config.confirm.edit": "Change config \"$0\"?",
+  "ui.content.page.config.confirm.create": "Create config \"$0\"?",
+
+  "ui.content.page.config.extra.title": "Other parameters",
+  "ui.content.page.config.extra.item.delete": "Delete \"$0\" column?",
+  "ui.content.page.config.extra.create.error": "Key duplicated",
+  "ui.content.page.config.extra.create.empty.key": "Key empty!",
+  "ui.content.page.config.extra.create.empty.value": "Value empty!",
+
+  "ui.content.page.list.task.label": "Current tasks",
+  "ui.content.page.list.task.info.label": "Task Info",
+  "ui.content.page.list.task.info.stop": "Stop",
+  "ui.content.page.list.task.log.label": "Task Logs",
+  "ui.content.page.list.task.log.before": "Auto Update: ",
+  "ui.content.page.list.task.log.interval.closed": "Closed",
+  "ui.content.page.list.task.log.interval.milliseconds": "$0 Milliseconds",
+  "ui.content.page.list.task.log.interval.second": "1 Second",
+  "ui.content.page.list.task.log.interval.seconds": "$0 Second",
+  "ui.content.page.list.task.log.button.show": "Show",
+  "ui.content.page.list.task.log.button.hide": "Hide",
+  "ui.content.page.list.task.log.refresh": "Refresh",
+  "ui.content.page.list.task.log.save": "Save",
+  "ui.content.page.list.task.log.clear": "Clear"
 }

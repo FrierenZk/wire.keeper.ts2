@@ -5,6 +5,7 @@ import {readLocal} from "../../common/resources";
 import {TaskPage} from "./page/TaskPage";
 import {ConfigPage} from "./page/ConfigPage";
 import {randomId} from "../random";
+import {ListPage} from "./page/ListPage";
 
 class TabSet {
     protected tabDiv = document.createElement('div')
@@ -12,12 +13,16 @@ class TabSet {
     protected map = new Map<string, TabItem>()
     protected currentPage: Page | null = null
     protected pageList: Array<PageBuilder> = [{
-        label: `${readLocal('ui.content.label.task')}`,
+        label: readLocal('ui.content.label.task'),
         newPage: () => new TaskPage(),
         hide: true
     }, {
-        label: `${readLocal('ui.content.label.configuration')}`,
+        label: readLocal('ui.content.label.configuration'),
         newPage: () => new ConfigPage(),
+        hide: false
+    }, {
+        label: readLocal('ui.content.label.list'),
+        newPage: () => new ListPage(),
         hide: false
     }]
 
