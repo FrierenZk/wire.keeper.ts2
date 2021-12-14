@@ -44,7 +44,7 @@ class LogsWriter {
                 let file = prefixPath('./data/tmp/' + this.loadLatestFile())
                 appendFile(file, data, err => {
                     if (err) console.error(err)
-                    else if (statSync(file).size > 1024 * 1024)
+                    else if (statSync(file).size > 128 * 1024)
                         this.createNewFile()
                 })
             }
@@ -60,6 +60,17 @@ class LogsWriter {
                 console.warn(e)
             }
         })
+        return arr
+    }
+
+    public get size() {
+        return this.files.length
+    }
+
+    public getLogs(n: number) {
+        let arr: Array<string> = []
+        let file = this.files[n]
+        if (file) arr.push(readFileSync(prefixPath('./data/tmp/' + file)).toString())
         return arr
     }
 
@@ -92,8 +103,12 @@ async function appendLogs(msg: string, task: string, host: string) {
     writers.get(host)!.get(task)!.append(msg)
 }
 
-ipcMain.handle('core-get-logs', ((event, host, task) => {
-    return writers?.get(host)?.get(task)?.allLogs || []
+ipcMain.handle('core-get-log-size', ((event, host, task) => {
+    return writers?.get(host)?.get(task)?.size || 1
+}))
+
+ipcMain.handle('core-get-logs', ((event, host, task, n) => {
+    return writers?.get(host)?.get(task)?.getLogs(n) || ''
 }))
 
 ipcMain.handle('core-clear-logs', ((event, host, task) => {
@@ -119,4 +134,9 @@ function cleanLogs() {
     })
 }
 
-export {appendLogs, cleanLogs}
+function getRecords(host: string): Array<string> {
+    if (writers.has(host)) return Array.from(writers.get(host)!.keys())
+    else return []
+}
+
+export {appendLogs, cleanLogs, getRecords}
