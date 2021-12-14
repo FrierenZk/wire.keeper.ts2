@@ -6,7 +6,7 @@ import {readFile, renameSync, writeFileSync} from 'fs'
 import {parseArray, parseMap, stringifyMap} from "../common/parser";
 import {waitUntil} from "../common/coroutines";
 import {mkdirIfNotExist, prefixPath} from "../common/path";
-import {appendLogs} from "./logs";
+import {appendLogs, getRecords} from "./logs";
 
 class ConnectionManager {
     protected map: Map<string, Connection> = new Map()
@@ -241,18 +241,60 @@ class Connection {
                     () => data.trim() == 'Success', event)
             })
         })
-        // ipcMain.handle('core-stop-task:' + this.host, ((event, args) => {
-        //     this.socket?.emit('stop_task', args, async (data: string) => {
-        //         let msg = readLocal('core.connection.stop.task.status', this.host, args, data)
-        //         if (data.trim() == 'Success') event.sender.send('ui-toast-show', msg)
-        //         else event.sender.send('ui-toast-show-alert', msg)
-        //     })
-        // }))
-        // ipcMain.on('core-get-task-status:' + this.host, ((event, args) => {
-        //     this.socket?.emit('get_task_status', args, async (data: string) => {
-        //         if (data) event.sender.send('ui-get-task-status-reply:' + this.host, data)
-        //     })
-        // }))
+
+        let idMap: Map<number, string> = new Map()
+        ipcMain.handle('core-get-task-name:' + this.host, async (event, args) => {
+            let id = Number(args)
+            let name: string | null = null
+            if (id) {
+                this.socket?.emit('get_task_name', id, async (data: string) => name = data)
+                await waitUntil(() => (name != null), 3000)
+                if (name && name != 'null') {
+                    idMap.set(id, name)
+                    return name
+                } else return idMap.get(id)
+            } else return null
+        })
+
+        ipcMain.handle('core-get-task-status:' + this.host, async (event, args) => {
+            let status: string | null = null
+            this.socket?.emit('get_task_status', Number(args), async (data: string) => status = data)
+            await waitUntil(() => (status != null), 3000)
+            if (status === null) status = 'Waiting for Server'
+            return status
+        })
+
+        let taskConfigHis = new Map<string, string>()
+        ipcMain.handle('core-get-task-config:' + this.host, async (event, args) => {
+            let info: string | null = null
+            this.socket?.emit('get_task_config', Number(args), async (data: string) => {
+                info = data
+                if (data !== 'null') taskConfigHis.set(args, data)
+            })
+            await waitUntil(() => (info != null), 3000)
+            if (info === 'null' && taskConfigHis.has(args)) info = taskConfigHis.get(args)!
+            return info
+        })
+
+        ipcMain.handle('core-stop-task:' + this.host, async (event, args) => {
+            this.socket?.emit('stop_task', Number(args), (data: string) => {
+                this.showToast(readLocal('core.connection.stop.task.status', this.host, args, data),
+                    () => data.trim() === 'Success', event)
+            })
+        })
+
+        ipcMain.handle('core-get-task-list:' + this.host, async (event, _) => {
+            let set: Set<string> | null = null
+            this.socket?.emit('get_task_list', async (data: string) => {
+                let s = new Set<string>()
+                Array.from(JSON.parse(data)).forEach(value => s.add(String(value)))
+                set = s
+            })
+            await waitUntil(() => (set != null), 3000)
+            if (set === null) set = new Set()
+            getRecords(this.host).forEach(value => set?.add(value))
+            return Array.from(set ? set : [])
+        })
     }
 
     protected showToast(msg: string, fn: () => boolean, event: IpcMainInvokeEvent) {
