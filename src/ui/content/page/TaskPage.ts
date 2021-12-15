@@ -108,7 +108,7 @@ class TaskPage extends APage {
             let button = document.createElement('div')
             button.appendChild(icon)
             button.className = 'content-page-task-card-item flex-row align-items-center'
-            icon.className = 'card-round-btn'
+            icon.className = 'card-round-btn shadow-sm'
             let t = document.createElement('div')
             t.className = 'user-select-none col'
             t.style.fontSize = '0.875rem'
@@ -119,21 +119,21 @@ class TaskPage extends APage {
         }
 
         let play = document.createElement('div')
-        play.innerHTML = `<i class="bi bi-play-fill" style="font-size: 1.5em"></i>`
+        play.innerHTML = `<i class="bi bi-play-fill" style="font-size: 1em"></i>`
         play.addEventListener('click', ev => {
             ipcRenderer.invoke('core-start-task:' + this.selectHost, this.selectTask).then()
             ev.cancelBubble
         })
 
         let playForce = document.createElement('div')
-        playForce.innerHTML = `<i class="bi bi-reply-fill" style="font-size: 1.5em"></i>`
+        playForce.innerHTML = `<i class="bi bi-reply-fill" style="font-size: 1em"></i>`
         playForce.addEventListener('click', ev => {
             ipcRenderer.invoke('core-start-task-force:' + this.selectHost, this.selectTask).then()
             ev.cancelBubble
         })
 
         let customPlay = document.createElement('div')
-        customPlay.innerHTML = `<i class="bi bi-justify-left" style="font-size: 1.5em"></i>`
+        customPlay.innerHTML = `<i class="bi bi-justify-left" style="font-size: 1em"></i>`
         customPlay.addEventListener('click', async (ev) => {
             let r = await ipcRenderer.invoke('core-get-task-info:' + this.selectHost, this.selectTask)
             ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {
@@ -145,7 +145,7 @@ class TaskPage extends APage {
         })
 
         let timer = document.createElement('div')
-        timer.innerHTML = `<i class="bi bi-clock-history" style="font-size: 1.25em"></i>`
+        timer.innerHTML = `<i class="bi bi-clock-history" style="font-size: 1em"></i>`
         timer.addEventListener('click', ev => {
             //TODO
             ev.cancelBubble
@@ -163,7 +163,7 @@ class TaskPage extends APage {
         card2.className = 'content-page-card flex-column'
 
         let refresh = document.createElement('div')
-        refresh.innerHTML = `<i class="bi bi-arrow-clockwise" style="font-size: 1.25em"></i>`
+        refresh.innerHTML = `<i class="bi bi-arrow-clockwise" style="font-size: 1em"></i>`
         refresh.addEventListener('click', ev => {
             if (this.updateInfo) this.updateInfo(this.selectHost, this.selectTask)
             ev.cancelBubble
@@ -182,7 +182,7 @@ class TaskPage extends APage {
         })
 
         let create = document.createElement('div')
-        create.innerHTML = `<i class="bi bi-plus-lg" style="font-size: 1.25em"></i>`
+        create.innerHTML = `<i class="bi bi-plus-lg" style="font-size: 1em"></i>`
         create.addEventListener('click', async (ev) => {
             let r = await ipcRenderer.invoke('core-get-task-info:' + this.selectHost, this.selectTask)
             ipcRenderer.invoke('core-call-self-event', 'ui-open-config-tab', {
@@ -194,7 +194,7 @@ class TaskPage extends APage {
         })
 
         let del = document.createElement('dvi')
-        del.innerHTML = `<i class="bi bi-trash-fill" style="font-size: 1.25em"></i>`
+        del.innerHTML = `<i class="bi bi-trash-fill" style="font-size: 1em"></i>`
         del.addEventListener('click', ev => {
             new ConfirmModal(readLocal('ui.content.page.task.delete.confirm', this.selectHost, this.selectTask), () => {
                 ipcRenderer.invoke('core-delete-config:' + this.selectHost, this.selectTask).then()
