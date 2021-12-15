@@ -2,7 +2,7 @@ import {ListItemGroup} from "./ListItemGroup";
 import {ipcRenderer} from "electron";
 import {showAlert} from "../../index-renderer";
 import {readLocal} from "../../common/resources";
-import {ConfirmModal} from "../content/modal/ConfirmModal";
+import {ConfirmModal} from "../modal/ConfirmModal";
 
 class ConnectionList {
     protected list = document.createElement('div')

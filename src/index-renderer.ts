@@ -3,7 +3,7 @@ import {Tooltip} from "bootstrap";
 import {Modals} from "./ui/modals";
 import {Toasts} from "./ui/toasts";
 import {Content} from "./ui/content/Content";
-import {ModalContainer} from "./ui/content/modal/ModalContainer";
+import {ModalContainer} from "./ui/modal/ModalContainer";
 
 document.getElementById('tail_script')?.remove()
 

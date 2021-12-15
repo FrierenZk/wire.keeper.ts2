@@ -2,7 +2,7 @@ import {APage} from "./APage";
 import {ipcRenderer, IpcRendererEvent} from "electron";
 import {readLocal} from "../../../common/resources";
 import {parseMap} from "../../../common/parser";
-import {ConfirmModal} from "../modal/ConfirmModal";
+import {ConfirmModal} from "../../modal/ConfirmModal";
 
 class TaskPage extends APage {
     protected updateListeners: Array<(host: string, task: string) => void> = []

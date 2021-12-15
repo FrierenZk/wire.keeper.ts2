@@ -4,7 +4,7 @@ import {randomId} from "../../random";
 import {readLocal} from "../../../common/resources";
 import {parseMap} from "../../../common/parser";
 import {setTimeout, setInterval} from "timers"
-import {ConfirmModal} from "../modal/ConfirmModal";
+import {ConfirmModal} from "../../modal/ConfirmModal";
 
 class ListPage extends APage {
     protected listeners: Array<(_: string) => void> = []

@@ -1,4 +1,4 @@
-import {readLocal} from "../../../common/resources";
+import {readLocal} from "../../common/resources";
 import {AModal} from "./AModal";
 
 class ConfirmModal extends AModal {

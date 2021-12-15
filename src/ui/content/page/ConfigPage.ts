@@ -3,7 +3,7 @@ import {ObserverInputField} from "../../databingding/ObserverInputField";
 import {parseMap} from "../../../common/parser";
 import {readLocal} from "../../../common/resources";
 import {ipcRenderer} from "electron";
-import {ConfirmModal} from "../modal/ConfirmModal";
+import {ConfirmModal} from "../../modal/ConfirmModal";
 
 class ConfigPage extends APage {
     protected mode: string = ''
