@@ -278,7 +278,8 @@ class Connection {
 
         ipcMain.handle('core-stop-task:' + this.host, async (event, args) => {
             this.socket?.emit('stop_task', Number(args), (data: string) => {
-                this.showToast(readLocal('core.connection.stop.task.status', this.host, args, data),
+                let task = idMap.get(Number(args)) ? idMap.get(Number(args))! : "unknown"
+                this.showToast(readLocal('core.connection.stop.task.status', this.host, task, data),
                     () => data.trim() === 'Success', event)
             })
         })
@@ -287,13 +288,36 @@ class Connection {
             let set: Set<string> | null = null
             this.socket?.emit('get_task_list', async (data: string) => {
                 let s = new Set<string>()
-                Array.from(JSON.parse(data)).forEach(value => s.add(String(value)))
+                parseArray(data).forEach(value => s.add(String(value)))
                 set = s
             })
             await waitUntil(() => (set != null), 3000)
             if (set === null) set = new Set()
             getRecords(this.host).forEach(value => set?.add(value))
             return Array.from(set ? set : [])
+        })
+
+        ipcMain.handle('core-get-timer-list:' + this.host, async (event, _) => {
+            let arr: Array<any> | null = null
+            this.socket?.emit('get_timer_list', async (data: string) => {
+                arr = parseArray(data)
+            })
+            await waitUntil(() => (arr != null), 3000)
+            return arr
+        })
+        ipcMain.handle('core-get-timer-config:' + this.host, async (event, args) => {
+            let info: string | null = null
+            this.socket?.emit('get_timer_config', String(args), async (data: string) => {
+                info = data
+            })
+            await waitUntil(() => (info != null), 3000)
+            return info
+        })
+        ipcMain.handle('core-delete-timer:' + this.host, async (event, args) => {
+            this.socket?.emit('delete_ticker', String(args), async (data: string) => {
+                this.showToast(readLocal('core.connection.delete.timer.status', this.host, args, data),
+                    () => data.trim() === 'Success', event)
+            })
         })
     }
 

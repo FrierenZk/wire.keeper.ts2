@@ -4,6 +4,7 @@ import {randomId} from "../../random";
 import {readLocal} from "../../../common/resources";
 import {parseMap} from "../../../common/parser";
 import {setTimeout, setInterval} from "timers"
+import {ConfirmModal} from "../modal/ConfirmModal";
 
 class ListPage extends APage {
     protected listeners: Array<(_: string) => void> = []
@@ -448,7 +449,79 @@ class ListPage extends APage {
     }
 
     protected createTimerDetails(timer: string, host: string) {
-        return document.createDocumentFragment()
+        let fragment = document.createDocumentFragment()
+
+        let card = document.createElement('div')
+        fragment.appendChild(card)
+        card.className = 'card-body flex-column'
+
+        let label = document.createElement('div')
+        card.appendChild(label)
+        label.className = 'd-flex flex-row align-items-center'
+        label.innerHTML = `<h3 class="mx-2 user-select-none">${readLocal('ui.content.page.list.timer.info.label')}</h3>`
+
+        let refreshBtn = document.createElement('div')
+        label.appendChild(refreshBtn)
+        refreshBtn.className = 'ms-auto btn-cs-circle shadow-sm'
+        refreshBtn.innerHTML = `<i class="bi bi-arrow-clockwise" style="font-size: .875em"></i>`
+
+        let buttonsDiv = document.createElement('div')
+        card.appendChild(buttonsDiv)
+        buttonsDiv.className = 'd-flex flex-wrap border-top py-2 align-items-center justify-content-evenly'
+
+        ;[{
+            label: readLocal('ui.content.page.list.timer.info.edit'),
+            icon: `<i class="bi bi-wrench"></i>`,
+            callback: () => {
+                // TODO: open timer config tab
+            }
+        }, {
+            label: readLocal('ui.content.page.list.timer.info.delete'),
+            icon: `<i class="bi bi-x-circle-fill"></i>`,
+            callback: () => new ConfirmModal(readLocal('ui.content.page.list.timer.info.confirm', timer), () => {
+                ipcRenderer.invoke('core-delete-timer:' + host, timer).then()
+            }).show(), color: 'red'
+        }].forEach(value => {
+            let div = document.createElement('div')
+            buttonsDiv.appendChild(div)
+            div.className = 'd-inline-flex flex-row align-items-center border border-2 rounded-pill shadow-sm m-1 px-4 py-1'
+
+            let btn = document.createElement('div')
+            div.appendChild(btn)
+            btn.className = 'btn-cs-circle shadow-sm'
+            btn.innerHTML = value.icon
+            if (value.color) btn.style.color = value.color
+            btn.addEventListener('click', ev => {
+                value.callback()
+                ev.cancelBubble
+            })
+
+            let text = document.createElement('div')
+            div.appendChild(text)
+            text.className = 'user-select-none mx-2'
+            text.textContent = value.label
+        })
+
+        let infoDiv = document.createElement('div')
+        card.appendChild(infoDiv)
+        infoDiv.className = 'd-flex flex-wrap border-top py-1 px-4'
+        infoDiv.style.minHeight = '1em'
+
+        let update = () => {
+            ipcRenderer.invoke('core-get-timer-config:' + host, timer).then(r => {
+                while (infoDiv.hasChildNodes()) infoDiv.removeChild(infoDiv.lastChild!)
+                parseMap(r).forEach((value, key) => {
+                    infoDiv.appendChild(this.createInfoBubble(key, value))
+                })
+            })
+        }
+        refreshBtn.addEventListener('click', ev => {
+            ev.cancelBubble
+            update()
+        })
+        update()
+
+        return fragment
     }
 
     protected createList() {
@@ -607,10 +680,44 @@ class ListPage extends APage {
     }
 
     protected createTimer() {
-        let card = document.createElement('div')
-        card.className = 'content-page-list-card row'
+        let object = this.createItemListCard()
+        let lastHost = ''
+        let selected = ''
 
-        return card
+        let listener = (host: string) => {
+            if (host.trim().length > 0) {
+                lastHost = host
+                ipcRenderer.invoke('core-get-timer-list:' + host).then(r => {
+                    while (object.list.hasChildNodes()) object.list.removeChild(object.list.lastChild!)
+                    Array.from(r).forEach(value => {
+                        let li = document.createElement('li')
+                        object.list.appendChild(li)
+                        li.className = 'list-group-item list-group-item-action user-select-none'
+                        li.setAttribute('data-bs-toggle', 'list')
+                        li.setAttribute('role', 'tab')
+                        li.textContent = String(value)
+                        if (value === selected) li.classList.add('active')
+                        li.addEventListener('click', async (ev) => {
+                            this.undoSelect.forEach(value => value())
+                            li.classList.add('active')
+                            selected = String(value)
+                            if (this.updateDetail && li.textContent) this.updateDetail('timer', String(value), lastHost)
+                            ev.cancelBubble
+                        })
+                    })
+                    if (!object.list.hasChildNodes()) object.list.innerHTML = '<li class="list-group-item user-select-none">None</li>'
+                })
+            } else console.warn('Invalid parameter received')
+        }
+
+        this.listeners.push(listener)
+        this.undoSelect.push(() => selected = '')
+        object.refreshBtn.addEventListener('click', async (ev) => {
+            listener(lastHost)
+            ev.cancelBubble
+        })
+
+        return object.card
     }
 }
 

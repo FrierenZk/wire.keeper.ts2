@@ -19,6 +19,7 @@
   "core.connection.modify.config.status": "[$0]: Modify config $1 \"$2\"",
   "core.connection.create.config.status": "[$0]: Create config $1 \"$2\"",
   "core.connection.delete.config.status": "[$0]: Delete config $1 \"$2\"",
+  "core.connection.delete.timer.status": "[$0]: Delete timer $1 \"$2\"",
 
 
   "ui.button.confirm": "Confirm",
@@ -77,5 +78,9 @@
   "ui.content.page.list.task.log.button.hide": "Hide",
   "ui.content.page.list.task.log.refresh": "Refresh",
   "ui.content.page.list.task.log.save": "Save",
-  "ui.content.page.list.task.log.clear": "Clear"
+  "ui.content.page.list.task.log.clear": "Clear",
+  "ui.content.page.list.timer.info.label": "Timer Info",
+  "ui.content.page.list.timer.info.edit": "Edit current timer config",
+  "ui.content.page.list.timer.info.delete": "Delete current timer",
+  "ui.content.page.list.timer.info.confirm": "Delete timer \"$0\" ?"
 }
