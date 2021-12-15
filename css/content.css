@@ -308,10 +308,11 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    margin: .5em;
+    margin: 1em;
     padding: .5em 1em;
     border: 2px solid dodgerblue;
     border-radius: 1em;
+    box-shadow: 0 0.5em 0.5em rgba(0, 0, 0, .15);
 }
 
 .info-bubble:hover {

@@ -88,6 +88,7 @@ class ListPage extends APage {
             let textDiv = document.createElement('div')
             div.appendChild(textDiv)
             textDiv.className = 'bubble-text'
+            textDiv.style.minWidth = `${key.length / 2}em`
 
             let text = document.createElement('div')
             textDiv.appendChild(text)
