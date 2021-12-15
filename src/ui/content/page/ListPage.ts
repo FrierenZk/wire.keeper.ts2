@@ -529,7 +529,7 @@ class ListPage extends APage {
         return card
     }
 
-    protected createTask() {
+    protected createItemListCard() {
         let card = document.createElement('div')
         card.className = 'content-page-list-card row'
 
@@ -548,7 +548,7 @@ class ListPage extends APage {
 
         let refreshBtn = document.createElement('div')
         label.appendChild(refreshBtn)
-        refreshBtn.className = 'btn-cs-circle'
+        refreshBtn.className = 'btn-cs-circle shadow-sm'
         refreshBtn.style.fontSize = '.875em'
         refreshBtn.innerHTML = `<i class="d-flex bi bi-arrow-clockwise"></i>`
 
@@ -558,6 +558,15 @@ class ListPage extends APage {
         list.innerHTML = `<li class="list-group-item list-group-item-action active" aria-current="true">example</li>
             <li class="list-group-item list-group-item-action">example2</li>`
 
+        this.undoSelect.push(() => {
+            Array.from(list.children).forEach(value => value.classList.remove('active'))
+        })
+
+        return {card, list, refreshBtn}
+    }
+
+    protected createTask() {
+        let object = this.createItemListCard()
         let lastHost = ''
         let selected = ''
 
@@ -565,10 +574,10 @@ class ListPage extends APage {
             if (host.trim().length > 0) {
                 lastHost = host
                 ipcRenderer.invoke('core-get-task-list:' + host).then(r => {
-                    while (list.hasChildNodes()) list.removeChild(list.lastChild!)
+                    while (object.list.hasChildNodes()) object.list.removeChild(object.list.lastChild!)
                     Array.from(r).forEach(value => {
                         let li = document.createElement('li')
-                        list.appendChild(li)
+                        object.list.appendChild(li)
                         ipcRenderer.invoke('core-get-task-name:' + host, value).then(r => li.textContent = String(r))
                         li.className = 'list-group-item list-group-item-action user-select-none'
                         li.setAttribute('data-bs-toggle', 'list')
@@ -582,23 +591,19 @@ class ListPage extends APage {
                             ev.cancelBubble
                         })
                     })
-                    if (!list.hasChildNodes()) list.innerHTML = '<li class="list-group-item user-select-none">None</li>'
+                    if (!object.list.hasChildNodes()) object.list.innerHTML = '<li class="list-group-item user-select-none">None</li>'
                 })
             } else console.warn('Invalid parameter received')
         }
 
         this.listeners.push(listener)
-        this.undoSelect.push(() => {
-            Array.from(list.children).forEach(value => value.classList.remove('active'))
-            selected = ''
-        })
-
-        refreshBtn.addEventListener('click', async (ev) => {
+        this.undoSelect.push(() => selected = '')
+        object.refreshBtn.addEventListener('click', async (ev) => {
             listener(lastHost)
             ev.cancelBubble
         })
 
-        return card
+        return object.card
     }
 
     protected createTimer() {
