@@ -158,8 +158,10 @@ class Connection {
             let task = obj['name']
             let time = obj['time']
             let msg = obj['msg']
-            if (task && time && msg) appendLogs(time.trim() + ': ' + msg.toString().trim(), task.toString(), this.host).then()
-            else {
+            if (task && time && msg) {
+                appendLogs(time.trim() + ': ' + msg.toString().trim(), task.toString(), this.host).then()
+                if (!idMap.has(Number(task))) updateID(Number(task)).then()
+            } else {
                 console.warn(`Invalid logs received "${task}:${msg}"`)
             }
         })
@@ -243,8 +245,7 @@ class Connection {
         })
 
         let idMap: Map<number, string> = new Map()
-        ipcMain.handle('core-get-task-name:' + this.host, async (event, args) => {
-            let id = Number(args)
+        let updateID = async (id: number) => {
             let name: string | null = null
             if (id) {
                 this.socket?.emit('get_task_name', id, async (data: string) => name = data)
@@ -254,6 +255,9 @@ class Connection {
                     return name
                 } else return idMap.get(id)
             } else return null
+        }
+        ipcMain.handle('core-get-task-name:' + this.host, async (event, args) => {
+            return await updateID(Number(args))
         })
 
         ipcMain.handle('core-get-task-status:' + this.host, async (event, args) => {
