@@ -146,7 +146,8 @@ class ListPage extends APage {
         stopBtn.className = 'btn btn-sm btn-danger mx-2'
         stopBtn.textContent = readLocal('ui.content.page.list.task.info.stop')
         stopBtn.addEventListener('click', ev => {
-            ipcRenderer.invoke('core-stop-task:' + host, task).then()
+            new ConfirmModal(readLocal('ui.content.page.list.task.info.stop.confirm', task),
+                () => ipcRenderer.invoke('core-stop-task:' + host, task).then()).show()
             ev.cancelBubble
         })
 

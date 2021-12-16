@@ -72,6 +72,7 @@
   "ui.content.page.list.task.label": "Current tasks",
   "ui.content.page.list.task.info.label": "Task Info",
   "ui.content.page.list.task.info.stop": "Stop",
+  "ui.content.page.list.task.info.stop.confirm": "Stop task \"$0\"?",
   "ui.content.page.list.task.log.label": "Task Logs",
   "ui.content.page.list.task.log.before": "Auto Update: ",
   "ui.content.page.list.task.log.interval.closed": "Closed",
