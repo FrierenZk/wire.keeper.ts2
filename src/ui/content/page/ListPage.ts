@@ -41,7 +41,7 @@ class ListPage extends APage {
 
     protected createDetail() {
         let card = document.createElement('div')
-        card.className = 'content-page-list-card col'
+        card.className = 'content-page-card col'
         card.innerHTML = '<p class="card-body user-select-none"> </p>'
 
         let currentType = ''
@@ -551,7 +551,7 @@ class ListPage extends APage {
 
     protected createLabel() {
         let card = document.createElement('div')
-        card.className = 'content-page-list-card row'
+        card.className = 'content-page-card row'
 
         let hostDiv = document.createElement('div')
         card.appendChild(hostDiv)
@@ -619,7 +619,7 @@ class ListPage extends APage {
 
     protected createItemListCard() {
         let card = document.createElement('div')
-        card.className = 'content-page-list-card row'
+        card.className = 'content-page-card row'
 
         let body = document.createElement('div')
         card.appendChild(body)

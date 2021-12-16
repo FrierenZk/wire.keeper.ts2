@@ -72,7 +72,7 @@ class TaskPage extends APage {
 
         let card = document.createElement('div')
         fragment.appendChild(card)
-        card.className = 'content-page-card flex-column'
+        card.className = 'content-page-task-card flex-column'
 
         let title = document.createElement('div')
         card.appendChild(title)
@@ -102,7 +102,7 @@ class TaskPage extends APage {
 
         let card = document.createElement('div')
         closet.appendChild(card)
-        card.className = 'content-page-card flex-column'
+        card.className = 'content-page-task-card flex-column'
 
         let createButton = (icon: HTMLElement, text: string) => {
             let button = document.createElement('div')
@@ -160,7 +160,7 @@ class TaskPage extends APage {
 
         let card2 = document.createElement('div')
         closet.appendChild(card2)
-        card2.className = 'content-page-card flex-column'
+        card2.className = 'content-page-task-card flex-column'
 
         let refresh = document.createElement('div')
         refresh.innerHTML = `<i class="bi bi-arrow-clockwise" style="font-size: 1em"></i>`
@@ -219,7 +219,7 @@ class TaskPage extends APage {
 
         let card = document.createElement('div')
         fragment.appendChild(card)
-        card.className = 'flex-column content-page-card col'
+        card.className = 'flex-column content-page-task-card col'
 
         let header = document.createElement('div')
         card.appendChild(header)
