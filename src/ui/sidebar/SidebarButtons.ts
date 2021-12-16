@@ -1,6 +1,6 @@
 import {readLocal} from "../../common/resources";
 import {ipcRenderer} from "electron";
-import {showAddModal} from "../../index-renderer";
+import {AddModal} from "./AddModal";
 
 class SidebarButtons {
     public refresh: (() => void) | null = null
@@ -36,9 +36,10 @@ class SidebarButtons {
             <svg width="1rem" height="1rem" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
             </svg>`
-        addBtn.onclick = () => {
-            showAddModal()
-        }
+        addBtn.addEventListener('click', ev => {
+            new AddModal().show()
+            ev.cancelBubble
+        })
         ipcRenderer.on('ui-sidebar-add-button', () => addBtn.click())
         buttons.appendChild(addBtn)
 

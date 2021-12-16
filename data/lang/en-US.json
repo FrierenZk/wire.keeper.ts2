@@ -11,7 +11,7 @@
   "core.delete.connection.success": "Connection \"$0\" has been deleted",
   "core.delete.connection.failed": "Connection \"$0\" deletion error occurred",
 
-  "core.create.connection.success": "Connection \"$0\" successfully added",
+  "core.create.connection.duplicated": "Connection \"$0\" has already exist",
   "core.create.connection.failed": "Failed to add connection \"$0\"",
 
   "core.connection.start.task.status": "[$0]: Start task $1 \"$2\"",
@@ -35,6 +35,10 @@
   "ui.sidebar.delete.alert": "Please select a valid connection",
   "ui.sidebar.native.load": "[$0]: Failed to load configs from server, use native's instead",
   "ui.sidebar.remote.load": "[$0]: Update configs success",
+  "ui.sidebar.modal.add.title": "Add Connection",
+  "ui.sidebar.modal.add.address": "New host address:",
+  "ui.sidebar.modal.add.warn": "Please check your input",
+  "ui.sidebar.modal.add.success": "Connection \"$0\" successfully added",
 
   "ui.content.label.task": "Task",
   "ui.content.label.configuration": "Config",
