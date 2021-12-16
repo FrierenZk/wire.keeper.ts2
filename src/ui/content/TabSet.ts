@@ -6,6 +6,7 @@ import {TaskPage} from "./page/TaskPage";
 import {ConfigPage} from "./page/ConfigPage";
 import {randomId} from "../random";
 import {ListPage} from "./page/ListPage";
+import {TimerPage} from "./page/TimerPage";
 
 class TabSet {
     protected tabDiv = document.createElement('div')
@@ -23,6 +24,10 @@ class TabSet {
     }, {
         label: readLocal('ui.content.label.list'),
         newPage: () => new ListPage(),
+        hide: false
+    }, {
+        label: readLocal('ui.content.label.timer'),
+        newPage: () => new TimerPage(),
         hide: false
     }]
 

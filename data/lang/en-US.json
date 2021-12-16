@@ -46,6 +46,7 @@
   "ui.content.label.task": "Task",
   "ui.content.label.configuration": "Config",
   "ui.content.label.list": "Task List",
+  "ui.content.label.timer": "Timer Config",
 
   "ui.content.page.task.title": "Current Task",
   "ui.content.page.task.play": "Start the task",
@@ -93,5 +94,9 @@
   "ui.content.page.list.timer.info.label": "Timer Info",
   "ui.content.page.list.timer.info.edit": "Edit current timer config",
   "ui.content.page.list.timer.info.delete": "Delete current timer",
-  "ui.content.page.list.timer.info.confirm": "Delete timer \"$0\" ?"
+  "ui.content.page.list.timer.info.confirm": "Delete timer \"$0\" ?",
+
+  "ui.content.page.timer.save": "Save",
+  "ui.content.page.timer.title.edit": "Edit current timer",
+  "ui.content.page.timer.title.create": "Create new timer"
 }
