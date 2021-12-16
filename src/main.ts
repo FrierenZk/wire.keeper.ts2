@@ -1,6 +1,6 @@
 import {app, BrowserWindow, ipcMain, Menu, MenuItemConstructorOptions, shell, WebContents} from 'electron'
 import {join} from "path";
-import {ConnectionManager} from "./core/connection";
+import {ConnectionManager} from "./core/connection/ConnectionManager";
 import {cleanLogs} from "./core/logs";
 import {readLocal} from "./common/resources";
 
