@@ -3,6 +3,7 @@ import {Tooltip} from "bootstrap";
 import {Toasts} from "./ui/toasts";
 import {Content} from "./ui/content/Content";
 import {ModalContainer} from "./ui/modal/ModalContainer";
+import {ToastContainer} from "./ui/toast/ToastContainer";
 
 document.getElementById('tail_script')?.remove()
 
@@ -20,6 +21,7 @@ let toasts = new Toasts()
 toasts.init(document.body)
 
 document.body.appendChild(ModalContainer.create())
+document.body.appendChild(ToastContainer.create())
 
 let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
 tooltipTriggerList.map((tooltipTriggerEl) => {
