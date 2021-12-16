@@ -2,8 +2,9 @@ import {AModal} from "../modal/AModal";
 import {readLocal} from "../../common/resources";
 import {ipcRenderer} from "electron";
 import {ObserverInputField} from "../databingding/ObserverInputField";
-import {showAlert, showToast} from "../../index-renderer";
 import {setTimeout} from "timers"
+import {AlertToast} from "../toast/AlertToast";
+import {InfoToast} from "../toast/InfoToast";
 
 class AddModal extends AModal {
     protected title = readLocal('ui.sidebar.modal.add.title')
@@ -56,8 +57,8 @@ class AddModal extends AModal {
             ev.cancelBubble
             if (this.inputObserver.get().trim().length > 0) {
                 ipcRenderer.invoke('core-create-connection', this.inputObserver.get()).then(r => {
-                    if (r) showAlert(String(r))
-                    else showToast(readLocal('ui.sidebar.modal.add.success', this.inputObserver.get()))
+                    if (r) new AlertToast(String(r)).show()
+                    else new InfoToast(readLocal('ui.sidebar.modal.add.success', this.inputObserver.get())).show()
                     cancelBtn.click()
                 })
             } else this.showWarn()

@@ -1,8 +1,8 @@
 import {ListItemGroup} from "./ListItemGroup";
 import {ipcRenderer} from "electron";
-import {showAlert} from "../../index-renderer";
 import {readLocal} from "../../common/resources";
 import {ConfirmModal} from "../modal/ConfirmModal";
+import {AlertToast} from "../toast/AlertToast";
 
 class ConnectionList {
     protected list = document.createElement('div')
@@ -33,7 +33,7 @@ class ConnectionList {
                     if (r) ipcRenderer.invoke('core-get-connections').then(args => this.buildList(Array.from(args)))
                 })
             }).show()
-        else showAlert(readLocal('ui.sidebar.delete.alert'))
+        else new AlertToast(readLocal('ui.sidebar.delete.alert')).show()
     }
 
     public filter(t: string) {

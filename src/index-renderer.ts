@@ -1,9 +1,9 @@
 import {Sidebar} from "./ui/sidebar/Sidebar";
 import {Tooltip} from "bootstrap";
-import {Toasts} from "./ui/toasts";
 import {Content} from "./ui/content/Content";
 import {ModalContainer} from "./ui/modal/ModalContainer";
 import {ToastContainer} from "./ui/toast/ToastContainer";
+import {ToastEventListener} from "./ui/toast/ToastEventListener";
 
 document.getElementById('tail_script')?.remove()
 
@@ -17,23 +17,12 @@ document.body.appendChild(main)
 main.appendChild(Sidebar.create())
 main.appendChild(Content.create())
 
-let toasts = new Toasts()
-toasts.init(document.body)
-
 document.body.appendChild(ModalContainer.create())
 document.body.appendChild(ToastContainer.create())
+
+ToastEventListener.init()
 
 let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
 tooltipTriggerList.map((tooltipTriggerEl) => {
     return new Tooltip(tooltipTriggerEl)
 });
-
-function showAlert(msg: string) {
-    toasts.showAlert(msg)
-}
-
-function showToast(msg: string) {
-    toasts.showToast(msg)
-}
-
-export {showAlert, showToast}
