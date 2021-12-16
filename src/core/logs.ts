@@ -115,6 +115,14 @@ ipcMain.handle('core-clear-logs', ((event, host, task) => {
     if (writers.has(host)) if (writers.get(host)!.has(task)) writers.get(host)?.get(task)?.clear()
 }))
 
+ipcMain.handle('core-delete-logs', (event, host, task) => {
+    if (writers.has(host)) if (writers.get(host)!.has(task)) {
+        writers.get(host)!.get(task)!.clear()
+        writers.get(host)!.delete(task)
+        event.sender.send('ui-toast-show', readLocal('core.logs.delete.log.success', host, task))
+    } else event.sender.send('ui-toast-show-alert', readLocal('core.logs.delete.log.failed', host, task))
+})
+
 ipcMain.handle('core-save-logs', ((event, host, task) => {
     let writer = writers.get(host)?.get(task)
     dialog.showSaveDialog({

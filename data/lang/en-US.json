@@ -21,6 +21,9 @@
   "core.connection.delete.config.status": "[$0]: Delete config $1 \"$2\"",
   "core.connection.delete.timer.status": "[$0]: Delete timer $1 \"$2\"",
 
+  "core.logs.delete.log.success": "[$0]: Delete task \"$1\" success",
+  "core.logs.delete.log.failed": "[$0]: Can not find task \"$1\"",
+
 
   "ui.button.confirm": "Confirm",
   "ui.button.cancel": "Cancel",
@@ -73,6 +76,8 @@
   "ui.content.page.list.task.info.label": "Task Info",
   "ui.content.page.list.task.info.stop": "Stop",
   "ui.content.page.list.task.info.stop.confirm": "Stop task \"$0\"?",
+  "ui.content.page.list.task.info.delete": "Delete",
+  "ui.content.page.list.task.info.delete.confirm": "Delete task \"$0\"?",
   "ui.content.page.list.task.log.label": "Task Logs",
   "ui.content.page.list.task.log.before": "Auto Update: ",
   "ui.content.page.list.task.log.interval.closed": "Closed",

@@ -151,6 +151,16 @@ class ListPage extends APage {
             ev.cancelBubble
         })
 
+        let deleteBtn = document.createElement('div')
+        statusDiv.appendChild(deleteBtn)
+        deleteBtn.className = 'btn btn-sm btn-danger mx-2'
+        deleteBtn.textContent = readLocal('ui.content.page.list.task.info.delete')
+        deleteBtn.addEventListener('click', ev => {
+            new ConfirmModal(readLocal('ui.content.page.list.task.info.delete.confirm'),
+                () => ipcRenderer.invoke('core-delete-logs', host, task).then()).show()
+            ev.cancelBubble
+        })
+
         this.knock = () => {
             ipcRenderer.invoke('core-get-task-status:' + host, task).then(r => {
                 statusText.textContent = String(r)
@@ -159,12 +169,16 @@ class ListPage extends APage {
                         icon.innerHTML = `<div class="spinner-border spinner-border-sm text-primary" role="status">
                                             <span class="visually-hidden">Loading...</span>
                                           </div>`
+                        stopBtn.hidden = false
+                        deleteBtn.hidden = true
                         break
                     case "Error":
                         icon.innerHTML = `<div class="btn-close" style="pointer-events: none; user-select: none"></div>`
                         break
                     default:
                         icon.innerHTML = `<div style="border-radius: 50%; color: dodgerblue"></div>`
+                        stopBtn.hidden = true
+                        deleteBtn.hidden = false
                         break
                 }
             })
