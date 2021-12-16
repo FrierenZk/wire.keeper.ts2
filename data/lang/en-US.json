@@ -54,6 +54,7 @@
   "ui.content.page.task.refresh": "Refresh",
   "ui.content.page.task.edit": "Edit current task config",
   "ui.content.page.task.create": "Create new config from current config",
+  "ui.content.page.task.delete": "Delete current task config",
   "ui.content.page.task.delete.confirm": "Delete config \"$0/$1\"?",
   "ui.content.page.task.info": "Task Details",
 
