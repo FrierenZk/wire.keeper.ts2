@@ -47,7 +47,7 @@ class ConfigPage extends APage {
         return fragment
     }
 
-    public createHeader() {
+    protected createHeader() {
         let div = document.createElement('div')
         div.className = 'd-flex px-5 mb-2'
         this.cleanList.push(div)
@@ -106,7 +106,7 @@ class ConfigPage extends APage {
         return div
     }
 
-    public createContent() {
+    protected createContent() {
         let div = document.createElement('div')
         div.className = 'd-flex flex-row row'
         this.cleanList.push(div)
