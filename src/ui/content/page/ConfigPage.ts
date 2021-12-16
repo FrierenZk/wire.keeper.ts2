@@ -5,6 +5,7 @@ import {readLocal} from "../../../common/resources";
 import {ipcRenderer} from "electron";
 import {ConfirmModal} from "../../modal/ConfirmModal";
 import {HostSelectionCard} from "./HostSelectionCard";
+import {HeaderCard} from "./HeaderCard";
 
 class ConfigPage extends APage {
     protected mode: string = ''
@@ -49,43 +50,24 @@ class ConfigPage extends APage {
     }
 
     protected createHeader() {
-        let div = document.createElement('div')
-        div.className = 'd-flex px-5 mb-2'
-        this.cleanList.push(div)
-
-        let header = document.createElement('div')
-        div.appendChild(header)
-        header.className = 'col-12 border-bottom d-flex align-items-center'
-
-        let title = document.createElement('div')
-        header.appendChild(title)
-        title.className = 'ps-4 me-auto fs-4 fw-bolder user-select-none col'
-
-        let buttonDiv = document.createElement('div')
-        header.appendChild(buttonDiv)
-        buttonDiv.className = 'd-inline-flex align-items-center py-2 px-4'
-
-        let createBtn = (text: string) => {
-            let btn = document.createElement('div')
-            buttonDiv.appendChild(btn)
-            btn.className = 'btn btn-primary'
-            btn.textContent = text
-            return btn
-        }
+        let title: string
+        let button = document.createElement('button')
+        button.type = 'button'
+        button.className = 'btn btn-sm btn-primary mx-2'
 
         switch (this.mode) {
             case 'run':
-                title.textContent = readLocal('ui.content.page.config.title.run')
-                let btn = createBtn(readLocal('ui.content.page.config.btn.run'))
-                btn.addEventListener('click', (ev) => {
+                title = readLocal('ui.content.page.config.title.run')
+                button.textContent = readLocal('ui.content.page.config.btn.run')
+                button.addEventListener('click', (ev) => {
                     ipcRenderer.invoke('core-start-custom-task:' + this.host, this.package()).then()
                     ev.cancelBubble
                 })
                 break
             case 'edit':
-                title.textContent = readLocal('ui.content.page.config.title.edit')
-                let btn2 = createBtn(readLocal('ui.content.page.config.btn.save'))
-                btn2.addEventListener('click', async (ev) => {
+                title = readLocal('ui.content.page.config.title.edit')
+                button.textContent = readLocal('ui.content.page.config.btn.save')
+                button.addEventListener('click', async (ev) => {
                     new ConfirmModal(readLocal('ui.content.page.config.confirm.edit', this.nameObserver.get()), () => {
                         ipcRenderer.invoke('core-modify-config:' + this.host, this.package()).then()
                     }).show()
@@ -93,9 +75,9 @@ class ConfigPage extends APage {
                 })
                 break
             default:
-                title.textContent = readLocal('ui.content.page.config.title.create')
-                let btn3 = createBtn(readLocal('ui.content.page.config.btn.save'))
-                btn3.addEventListener('click', async (ev) => {
+                title = readLocal('ui.content.page.config.title.create')
+                button.textContent = readLocal('ui.content.page.config.btn.save')
+                button.addEventListener('click', async (ev) => {
                     new ConfirmModal(readLocal('ui.content.page.config.confirm.create', this.nameObserver.get()), () => {
                         ipcRenderer.invoke('core-create-config:' + this.host, this.package()).then()
                     }).show()
@@ -104,7 +86,7 @@ class ConfigPage extends APage {
                 break
         }
 
-        return div
+        return new HeaderCard().create(title, button)
     }
 
     protected createContent() {
