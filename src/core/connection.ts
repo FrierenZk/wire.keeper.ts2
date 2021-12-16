@@ -24,13 +24,13 @@ class ConnectionManager {
     }
 
     protected initListeners() {
-        ipcMain.on('core-create-connection', async (event, args) => {
-            let flag = !this.map.has(args)
-            if (flag) flag = flag && this.createConnection(args)
-            if (flag) {
-                event.reply('ui-toast-show', readLocal('core.create.connection.success', args))
-                event.reply('ui-update-connections', Array.from(this.map.keys()))
-            } else event.reply('ui-toast-show-alert', readLocal('core.create.connection.failed', args))
+        ipcMain.handle('core-create-connection', async (event, args) => {
+            if (this.map.has(args)) return readLocal('core.create.connection.duplicated', args)
+            let f = this.createConnection(args)
+            if (f) {
+                event.sender.send('ui-update-connections', Array.from(this.map.keys()))
+                return null
+            } else return readLocal('core.create.connection.failed', args)
         })
         ipcMain.handle('core-delete-connection', async (event, args) => {
             let flag = this.map.has(args)
