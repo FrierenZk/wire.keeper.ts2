@@ -5,9 +5,9 @@ import {readLocal} from "../../../common/resources";
 import {parseMap} from "../../../common/parser";
 import {setTimeout, setInterval} from "timers"
 import {ConfirmModal} from "../../modal/ConfirmModal";
+import {HostSelectionCard} from "./HostSelectionCard";
 
 class ListPage extends APage {
-    protected listeners: Array<(_: string) => void> = []
     protected undoSelect: Array<() => void> = []
     protected updateDetail: ((type: string, item: string, host: string) => void) | null = null
 
@@ -550,71 +550,11 @@ class ListPage extends APage {
     }
 
     protected createLabel() {
-        let card = document.createElement('div')
-        card.className = 'content-page-card row'
-
-        let hostDiv = document.createElement('div')
-        card.appendChild(hostDiv)
-        hostDiv.className = 'card-body'
-
-        let btnGroup = document.createElement('div')
-        hostDiv.appendChild(btnGroup)
-        btnGroup.className = 'btn-group col'
-
-        let hostBtn = document.createElement('button')
-        btnGroup.appendChild(hostBtn)
-        hostBtn.type = 'button'
-        hostBtn.className = 'btn btn-primary text-wrap w-100'
-
-        let dropdownBtn = document.createElement('button')
-        btnGroup.appendChild(dropdownBtn)
-        dropdownBtn.type = 'button'
-        dropdownBtn.className = 'btn btn-primary dropdown-toggle dropdown-toggle-split'
-        dropdownBtn.id = randomId('dropdown')
-        dropdownBtn.setAttribute('data-bs-toggle', 'dropdown')
-        dropdownBtn.setAttribute('aria-expanded', 'false')
-
-        let dropdownMenu = document.createElement('ul')
-        btnGroup.appendChild(dropdownMenu)
-        dropdownMenu.className = 'dropdown-menu'
-        dropdownMenu.setAttribute('aria-labelledby', dropdownBtn.id)
-
-        let setHost = (host: string) => {
-            hostBtn.textContent = host
-            this.listeners.forEach(value => value(host))
-        }
-
-        let setMenu = (arr: Array<any>) => {
-            if (arr.length > 0) {
-                while (dropdownMenu.hasChildNodes()) dropdownMenu.removeChild(dropdownMenu.lastChild!)
-                arr.forEach(value => {
-                    let li = document.createElement('li')
-                    li.className = 'dropdown-item text-wrap'
-                    li.textContent = value
-                    li.addEventListener('click', async (ev) => {
-                        setHost(String(value))
-                        ev.cancelBubble
-                    })
-                    dropdownMenu.appendChild(li)
-                })
-            }
-        }
-
-        ipcRenderer.invoke('core-get-connections').then(r => {
-            let arr = Array.from(r)
-            if (arr) {
-                let host = String(arr[0])
-                if (host) setHost(host)
-                setMenu(arr)
-            }
+        let hostCard = new HostSelectionCard()
+        hostCard.bindListener(async (host: string) => {
+            this.normalListeners.forEach(value => value(host))
         })
-
-        dropdownBtn.addEventListener('click', async (ev) => {
-            ipcRenderer.invoke('core-get-connections').then(r => setMenu(Array.from(r)))
-            ev.cancelBubble
-        })
-
-        return card
+        return hostCard.create(null)
     }
 
     protected createItemListCard() {
@@ -684,7 +624,7 @@ class ListPage extends APage {
             } else console.warn('Invalid parameter received')
         }
 
-        this.listeners.push(listener)
+        this.bindNormalListeners(listener)
         this.undoSelect.push(() => selected = '')
         object.refreshBtn.addEventListener('click', async (ev) => {
             listener(lastHost)
@@ -725,7 +665,7 @@ class ListPage extends APage {
             } else console.warn('Invalid parameter received')
         }
 
-        this.listeners.push(listener)
+        this.bindNormalListeners(listener)
         this.undoSelect.push(() => selected = '')
         object.refreshBtn.addEventListener('click', async (ev) => {
             listener(lastHost)

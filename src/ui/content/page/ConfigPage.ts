@@ -4,6 +4,7 @@ import {parseMap} from "../../../common/parser";
 import {readLocal} from "../../../common/resources";
 import {ipcRenderer} from "electron";
 import {ConfirmModal} from "../../modal/ConfirmModal";
+import {HostSelectionCard} from "./HostSelectionCard";
 
 class ConfigPage extends APage {
     protected mode: string = ''
@@ -115,52 +116,11 @@ class ConfigPage extends APage {
         div.appendChild(infos)
         infos.className = 'd-flex flex-column col-4'
 
-        let hostCard = document.createElement('div')
-        infos.appendChild(hostCard)
-        hostCard.className = 'content-page-config-card row'
-
-        let hostDropdown = document.createElement('div')
-        hostCard.appendChild(hostDropdown)
-        hostDropdown.className = 'card-body'
-        hostDropdown.style.borderTopLeftRadius = '.5em'
-
-        let hostBtnDiv = document.createElement('div')
-        hostDropdown.appendChild(hostBtnDiv)
-        // noinspection SpellCheckingInspection
-        hostBtnDiv.className = 'btn-group dropend d-flex'
-
-        let hostBtn = document.createElement('button')
-        hostBtnDiv.appendChild(hostBtn)
-        hostBtn.className = 'btn btn-primary w-100'
-        hostBtn.type = 'button'
-
-        let hostToggle = document.createElement('button')
-        hostBtnDiv.appendChild(hostToggle)
-        hostToggle.className = 'btn btn-primary dropdown-toggle dropdown-toggle-split'
-        hostToggle.type = 'button'
-        hostToggle.setAttribute('data-bs-toggle', 'dropdown')
-        hostToggle.setAttribute('aria-expanded', 'false')
-
-        if (this.host.trim().length > 0) hostBtn.textContent = this.host
-
-        let menuDiv = document.createElement('ul')
-        hostBtnDiv.appendChild(menuDiv)
-        menuDiv.className = 'dropdown-menu'
-        menuDiv.setAttribute('aria-labelledby', 'hostDropdownButton')
-
-        ipcRenderer.invoke('core-get-connections').then(r => {
-            Array.from(r).forEach(value => {
-                let li = document.createElement('li')
-                menuDiv.appendChild(li)
-                li.innerHTML = `<a class="dropdown-item" href="#">${value}</a>`
-                li.addEventListener('click', (ev) => {
-                    this.host = String(value)
-                    hostBtn.textContent = this.host
-                    ev.cancelBubble
-                })
-                if (this.host.trim().length == 0) li.click()
-            })
+        let hostCard = new HostSelectionCard()
+        hostCard.bindListener(async (host: string) => {
+            this.host = host
         })
+        infos.appendChild(hostCard.create(this.host))
 
         ;[
             {label: "name", field: this.nameObserver},
