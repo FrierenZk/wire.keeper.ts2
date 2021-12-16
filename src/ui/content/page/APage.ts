@@ -11,6 +11,7 @@ abstract class APage extends AListener implements Page {
     remove(): void {
         this.cleanList.forEach(value => value.remove())
         this.removeRendererListeners()
+        this.removeNormalListeners()
     }
 }
 
