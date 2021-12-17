@@ -5,8 +5,10 @@ import {ObserverField} from "../../databingding/ObserverField";
 class HostSelectionCard {
     protected selectListener: ((_: string) => Promise<void>) | null = null
     protected hostObserver = ObserverField.fromString('')
+    protected afterCreate = false
 
     create(host: string | null) {
+        this.afterCreate = true
         if (Number(host?.trim()?.length) > 0) this.hostObserver.set(host!)
         else ipcRenderer.invoke('core-get-connections').then(r => {
             let first = Array.from(r)[0]
@@ -71,6 +73,7 @@ class HostSelectionCard {
 
     bindListener(fn: (_: string) => Promise<void>) {
         this.selectListener = fn
+        if (this.afterCreate) this.selectListener(this.hostObserver.get()).then()
     }
 }
 
