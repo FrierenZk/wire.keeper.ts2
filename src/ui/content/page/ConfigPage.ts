@@ -4,8 +4,9 @@ import {parseMap} from "../../../common/parser";
 import {readLocal} from "../../../common/resources";
 import {ipcRenderer} from "electron";
 import {ConfirmModal} from "../../modal/ConfirmModal";
-import {HostSelectionCard} from "./HostSelectionCard";
 import {HeaderCard} from "./HeaderCard";
+import {EditableInputItem} from "./EditableInputItem";
+import {HostSelectionCard} from "./HostSelectionCard";
 
 class ConfigPage extends APage {
     protected mode: string = ''
@@ -90,19 +91,43 @@ class ConfigPage extends APage {
     }
 
     protected createContent() {
+        let fragment = document.createDocumentFragment()
+
         let div = document.createElement('div')
-        div.className = 'd-flex flex-row row'
+        fragment.appendChild(div)
+        div.className = 'd-flex flex-row'
         this.cleanList.push(div)
 
-        let infos = document.createElement('div')
-        div.appendChild(infos)
-        infos.className = 'd-flex flex-column col-4'
+        let left = document.createElement('div')
+        div.appendChild(left)
+        left.className = 'd-flex flex-column'
 
         let hostCard = new HostSelectionCard()
-        hostCard.bindListener(async (host: string) => {
+        hostCard.bindListener(async (host) => {
             this.host = host
         })
-        infos.appendChild(hostCard.create(this.host))
+        left.appendChild(hostCard.create(this.host))
+        left.appendChild(this.createBasic())
+
+        let right = document.createElement('div')
+        div.appendChild(right)
+        right.className = 'd-flex flex-column col'
+        right.appendChild(this.createExtras())
+
+        return fragment
+    }
+
+    protected createBasic() {
+        let fragment = document.createDocumentFragment()
+
+        let card = document.createElement('div')
+        fragment.appendChild(card)
+        card.className = 'content-page-card'
+
+        let body = document.createElement('div')
+        card.appendChild(body)
+        body.className = 'card-body flex-column'
+        body.innerHTML = `<h6 class="font-monospace border-bottom ps-2 py-1 user-select-none">${readLocal('ui.content.page.config.basic.title')}</h6>`
 
         ;[
             {label: "name", field: this.nameObserver},
@@ -110,92 +135,13 @@ class ConfigPage extends APage {
             {label: "profile", field: this.profileObserver},
             {label: "svn", field: this.svnObserver}
         ].forEach(value => {
-            let card = document.createElement('div')
-            infos.appendChild(card)
-            card.className = 'content-page-config-card row-12'
-
-            let title = document.createElement('div')
-            card.appendChild(title)
-            title.className = 'card-header fw-bolder user-select-none row-12'
-            title.textContent = value.label
-
-
-            let body = document.createElement('div')
-            card.appendChild(body)
-            body.className = 'card-body row-12'
-
-            let form = document.createElement('form')
-            body.appendChild(form)
-
-            let inputGroup = document.createElement('div')
-            form.appendChild(inputGroup)
-            inputGroup.className = 'input-group'
-
-            let input = document.createElement('input')
-            inputGroup.appendChild(input)
-            input.className = 'form-control'
-            input.style.fontSize = '.75em'
-            input.setAttribute('disabled', '')
-            input.setAttribute('readonly', '')
-            value.field.setBinding(input)
-
-            let checkBtn = document.createElement('button')
-            checkBtn.className = 'btn btn-outline-primary p-1'
-            checkBtn.type = 'button'
-            checkBtn.hidden = false
-            checkBtn.innerHTML = `<i class="bi bi-check"></i>`
-
-            let cancelBtn = document.createElement('button')
-            cancelBtn.className = 'btn btn-outline-secondary p-1'
-            cancelBtn.type = 'button'
-            cancelBtn.hidden = false
-            cancelBtn.innerHTML = `<i class="bi bi-x"></i>`
-
-            let editBtn = document.createElement('button')
-            inputGroup.appendChild(editBtn)
-            editBtn.className = 'btn btn-secondary p-1'
-            editBtn.type = 'button'
-            editBtn.hidden = false
-            editBtn.innerHTML = `<i class="bi bi-pencil-square"></i>`
-
-            if (this.nameObserver == value.field && this.mode == 'edit') inputGroup.removeChild(editBtn)
-
-            let textSnapshot: string = ''
-
-            checkBtn.addEventListener('click', ev => {
-                inputGroup.removeChild(checkBtn)
-                inputGroup.removeChild(cancelBtn)
-                inputGroup.appendChild(editBtn)
-                input.setAttribute('disabled', '')
-                input.setAttribute('readonly', '')
-                ev.cancelBubble
-            })
-
-            cancelBtn.addEventListener('click', ev => {
-                inputGroup.removeChild(checkBtn)
-                inputGroup.removeChild(cancelBtn)
-                inputGroup.appendChild(editBtn)
-                input.value = textSnapshot
-                input.setAttribute('disabled', '')
-                input.setAttribute('readonly', '')
-                ev.cancelBubble
-            })
-
-            editBtn.addEventListener('click', ev => {
-                inputGroup.removeChild(editBtn)
-                inputGroup.appendChild(checkBtn)
-                inputGroup.appendChild(cancelBtn)
-                textSnapshot = input.value
-                input.removeAttribute('disabled')
-                input.removeAttribute('readonly')
-                input.select()
-                ev.cancelBubble
-            })
+            let div = document.createElement('div')
+            body.appendChild(div)
+            div.className = 'my-1'
+            div.appendChild(new EditableInputItem().create(value.label, value.field))
         })
 
-        div.appendChild(this.createExtras())
-
-        return div
+        return fragment
     }
 
     protected createExtras() {

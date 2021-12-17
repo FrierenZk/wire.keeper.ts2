@@ -68,6 +68,8 @@
   "ui.content.page.config.confirm.edit": "Change config \"$0\"?",
   "ui.content.page.config.confirm.create": "Create config \"$0\"?",
 
+  "ui.content.page.config.basic.title": "Parameters",
+
   "ui.content.page.config.extra.title": "Other parameters",
   "ui.content.page.config.extra.item.delete": "Delete \"$0\" column?",
   "ui.content.page.config.extra.create.error": "Key duplicated",
