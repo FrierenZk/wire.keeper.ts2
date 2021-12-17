@@ -1,4 +1,5 @@
 import {ObserverInputField} from "../../databingding/ObserverInputField";
+import {readLocal} from "../../../common/resources";
 
 class EditableInputItem {
     create(title: string, observer: ObserverInputField<any>) {
@@ -20,16 +21,22 @@ class EditableInputItem {
         inputGroup.appendChild(editBtn)
         editBtn.type = 'button'
         editBtn.className = 'btn btn-outline-primary px-2'
+        editBtn.setAttribute('data-bs-toggle', 'tooltip')
+        editBtn.title = readLocal('ui.content.page.input.edit')
         editBtn.innerHTML = `<i class="bi bi-text-indent-left"></i>`
 
         let checkBtn = document.createElement('button')
         checkBtn.type = 'button'
         checkBtn.className = 'btn btn-outline-primary px-2'
+        checkBtn.setAttribute('data-bs-toggle', 'tooltip')
+        checkBtn.title = readLocal('ui.content.page.input.save')
         checkBtn.innerHTML = `<i class="bi bi-check"></i>`
 
         let xBtn = document.createElement('button')
         xBtn.type = 'button'
         xBtn.className = 'btn btn-outline-danger px-2'
+        xBtn.setAttribute('data-bs-toggle', 'tooltip')
+        xBtn.title = readLocal('ui.content.page.input.cancel')
         xBtn.innerHTML = `<i class="bi bi-x"></i>`
 
         let tmp = observer.get()

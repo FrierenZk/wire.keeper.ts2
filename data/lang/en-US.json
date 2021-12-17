@@ -48,6 +48,10 @@
   "ui.content.label.list": "Task List",
   "ui.content.label.timer": "Timer Config",
 
+  "ui.content.page.input.edit": "Edit",
+  "ui.content.page.input.save": "Save",
+  "ui.content.page.input.cancel": "Cancel",
+
   "ui.content.page.task.title": "Current Task",
   "ui.content.page.task.play": "Start the task",
   "ui.content.page.task.replay": "Enforce start the task",
