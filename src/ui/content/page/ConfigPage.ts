@@ -127,7 +127,7 @@ class ConfigPage extends APage {
         let body = document.createElement('div')
         card.appendChild(body)
         body.className = 'card-body flex-column'
-        body.innerHTML = `<h6 class="font-monospace border-bottom ps-2 py-1 user-select-none">${readLocal('ui.content.page.config.basic.title')}</h6>`
+        body.innerHTML = `<h5 class="font-monospace border-bottom ps-2 py-1 fw-bold user-select-none">${readLocal('ui.content.page.config.basic.title')}</h5>`
 
         ;[
             {label: "name", field: this.nameObserver},
