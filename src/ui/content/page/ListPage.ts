@@ -145,8 +145,9 @@ class ListPage extends APage {
         statusDiv.appendChild(stopBtn)
         stopBtn.className = 'btn btn-sm btn-danger mx-2'
         stopBtn.textContent = readLocal('ui.content.page.list.task.info.stop')
-        stopBtn.addEventListener('click', ev => {
-            new ConfirmModal(readLocal('ui.content.page.list.task.info.stop.confirm', task),
+        stopBtn.addEventListener('click', async (ev) => {
+            let name = await ipcRenderer.invoke('core-get-task-name:' + host, task)
+            new ConfirmModal(readLocal('ui.content.page.list.task.info.stop.confirm', name),
                 () => ipcRenderer.invoke('core-stop-task:' + host, task).then()).show()
             ev.cancelBubble
         })
@@ -155,9 +156,15 @@ class ListPage extends APage {
         statusDiv.appendChild(deleteBtn)
         deleteBtn.className = 'btn btn-sm btn-danger mx-2'
         deleteBtn.textContent = readLocal('ui.content.page.list.task.info.delete')
-        deleteBtn.addEventListener('click', ev => {
-            new ConfirmModal(readLocal('ui.content.page.list.task.info.delete.confirm'),
-                () => ipcRenderer.invoke('core-delete-logs', host, task).then()).show()
+        deleteBtn.addEventListener('click', async (ev) => {
+            let name = await ipcRenderer.invoke('core-get-task-name:' + host, task)
+            new ConfirmModal(readLocal('ui.content.page.list.task.info.delete.confirm', name),
+                async () => {
+                    await ipcRenderer.invoke('core-delete-logs', host, task, name)
+                    this.undoSelect.forEach(value => value())
+                    this.refresh.forEach(value => value())
+                    if (this.updateDetail) this.updateDetail('', '', '')
+                }).show()
             ev.cancelBubble
         })
 
