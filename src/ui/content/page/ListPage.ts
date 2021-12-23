@@ -3,7 +3,7 @@ import {ipcRenderer} from "electron";
 import {randomId} from "../../random";
 import {readLocal} from "../../../common/resources";
 import {parseMap} from "../../../common/parser";
-import {setTimeout, setInterval} from "timers"
+import {setInterval, setTimeout} from "timers"
 import {ConfirmModal} from "../../modal/ConfirmModal";
 import {HostSelectionCard} from "./HostSelectionCard";
 
@@ -45,7 +45,7 @@ class ListPage extends APage {
         card.className = 'content-page-card col'
         card.innerHTML = '<p class="card-body user-select-none"> </p>'
 
-        let currentType = ''
+        let currentType = '_'
         let currentItem = ''
         let currentHost = ''
 
@@ -66,6 +66,7 @@ class ListPage extends APage {
                     break
             }
         }
+        this.updateDetail('', '', '')
 
         return card
     }
@@ -255,6 +256,7 @@ class ListPage extends APage {
 
         class LogNav {
             listeners: Array<(_: number) => void> = []
+            onchange: Array<(() => void)> = []
             protected activeNum = 0
             protected numButtons: Array<HTMLLIElement> = []
             protected ul = document.createElement('ul')
@@ -262,7 +264,7 @@ class ListPage extends APage {
             protected next = document.createElement('li')
 
             create() {
-                this.ul.className = 'pagination pagination-sm col flex-wrap mx-2 my-0'
+                this.ul.className = 'pagination pagination-sm align-items-center col flex-wrap mx-2 my-0'
                 this.ul.appendChild(this.prev)
                 this.ul.appendChild(this.next)
 
@@ -301,6 +303,7 @@ class ListPage extends APage {
                     }
                     this.numButtons = arr
                     this.ul.insertBefore(fragment, this.next)
+                    this.onchange.forEach(value => value())
                 }
             }
 
@@ -329,23 +332,38 @@ class ListPage extends APage {
         headButtons.className = 'd-inline-flex flex-row align-items-center ms-auto p-2'
         headButtons.style.overflowX = 'auto'
 
+        let headButtonsDiv = document.createElement('div')
+        headButtons.appendChild(headButtonsDiv)
+        headButtonsDiv.className = 'd-flex flex-row flex-wrap align-items-center'
+
         let refreshBtn = document.createElement('div')
-        headButtons.appendChild(refreshBtn)
-        refreshBtn.className = 'btn btn-sm btn-primary mx-2'
+        headButtonsDiv.appendChild(refreshBtn)
+        refreshBtn.className = 'btn btn-sm btn-primary m-2'
         refreshBtn.textContent = readLocal('ui.content.page.list.task.log.refresh')
 
         let saveBtn = document.createElement('div')
-        headButtons.appendChild(saveBtn)
-        saveBtn.className = 'btn btn-sm btn-primary mx-2'
+        headButtonsDiv.appendChild(saveBtn)
+        saveBtn.className = 'btn btn-sm btn-primary m-2'
         saveBtn.textContent = readLocal('ui.content.page.list.task.log.save')
 
         let clearBtn = document.createElement('div')
-        headButtons.appendChild(clearBtn)
-        clearBtn.className = 'btn btn-sm btn-danger mx-2'
+        headButtonsDiv.appendChild(clearBtn)
+        clearBtn.className = 'btn btn-sm btn-danger m-2'
         clearBtn.textContent = readLocal('ui.content.page.list.task.log.clear')
 
         let nav1 = new LogNav()
-        headButtons.appendChild(nav1.create())
+        let nav1Div = nav1.create()
+        headButtons.appendChild(nav1Div)
+        nav1.onchange.push(() => {
+            if (nav1Div.offsetHeight > 64 && headButtonsDiv.offsetWidth * 2 < headButtons.offsetWidth) {
+                headButtonsDiv.classList.remove('flex-row')
+                headButtonsDiv.classList.add('flex-column')
+            } else {
+                headButtonsDiv.classList.add('flex-row')
+                headButtonsDiv.classList.remove('flex-column')
+            }
+        })
+        window.addEventListener('resize', _ => nav1.onchange.forEach(value => value()))
 
         let logDiv = document.createElement('div')
         logContainer.appendChild(logDiv)
@@ -438,6 +456,7 @@ class ListPage extends APage {
         })
 
         showBtn.addEventListener('click', ev => {
+            updateLogs()
             hideBtn.hidden = false
             showBtn.hidden = true
             logContainer.style.display = 'flex'
