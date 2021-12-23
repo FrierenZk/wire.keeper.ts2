@@ -9,6 +9,7 @@ import {HostSelectionCard} from "./HostSelectionCard";
 
 class ListPage extends APage {
     protected undoSelect: Array<() => void> = []
+    protected refresh: Array<() => void> = []
     protected updateDetail: ((type: string, item: string, host: string) => void) | null = null
 
     remove() {
@@ -637,6 +638,7 @@ class ListPage extends APage {
             listener(lastHost)
             ev.cancelBubble
         })
+        this.refresh.push(() => object.refreshBtn.click())
 
         return object.card
     }
@@ -678,6 +680,7 @@ class ListPage extends APage {
             listener(lastHost)
             ev.cancelBubble
         })
+        this.refresh.push(() => object.refreshBtn.click())
 
         return object.card
     }
