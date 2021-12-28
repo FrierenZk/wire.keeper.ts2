@@ -87,10 +87,6 @@
   "ui.content.page.config.basic.title": "Parameters",
 
   "ui.content.page.config.extra.title": "Other parameters",
-  "ui.content.page.config.extra.item.delete": "Delete \"$0\" column?",
-  "ui.content.page.config.extra.create.error": "Key duplicated",
-  "ui.content.page.config.extra.create.empty.key": "Key empty!",
-  "ui.content.page.config.extra.create.empty.value": "Value empty!",
 
   "ui.content.page.list.task.label": "Current tasks",
   "ui.content.page.list.task.info.label": "Task Info",
