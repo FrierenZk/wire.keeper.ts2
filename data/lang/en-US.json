@@ -52,6 +52,18 @@
   "ui.content.page.input.save": "Save",
   "ui.content.page.input.cancel": "Cancel",
 
+  "ui.content.page.massivecard.delete.confirm": "Delete row \"$0\"?",
+  "ui.content.page.massivecard.duplicate.confirm": "Key \"$0\" already exists, do you want to update current value?",
+  "ui.content.page.massivecard.key.alert": "Empty key error",
+  "ui.content.page.massivecard.value.alert": "Empty value error",
+  "ui.content.page.massivecard.input.click": "Double-click to copy",
+  "ui.content.page.massivecard.add": "Add",
+  "ui.content.page.massivecard.cancel": "Cancel",
+  "ui.content.page.massivecard.save": "Save",
+  "ui.content.page.massivecard.edit": "Edit",
+  "ui.content.page.massivecard.more": "More..",
+  "ui.content.page.massivecard.delete": "Delete",
+
   "ui.content.page.task.title": "Current Task",
   "ui.content.page.task.play": "Start the task",
   "ui.content.page.task.replay": "Enforce start the task",
