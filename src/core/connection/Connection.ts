@@ -220,6 +220,18 @@ class Connection {
                     () => data.trim() === 'Success', event)
             })
         })
+        ipcMain.handle('core-add-timer:' + this.host, async (event, args) => {
+            this.socket?.emit('add_ticker', JSON.stringify(args), async (data: string) => {
+                this.showToast(readLocal('core.connection.add.timer.status', this.host, args.name, data),
+                    () => data.trim() === 'Success', event)
+            })
+        })
+        ipcMain.handle('core-modify-timer:' + this.host, async (event, args) => {
+            this.socket?.emit('modify_ticker', JSON.stringify(args), async (data: string) => {
+                this.showToast(readLocal('core.connection.modify.timer.status', this.host, args.name, data),
+                    () => data.trim() === 'Success', event)
+            })
+        })
     }
 
     protected showToast(msg: string, fn: () => boolean, event: IpcMainInvokeEvent) {
