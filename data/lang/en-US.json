@@ -20,6 +20,8 @@
   "core.connection.create.config.status": "[$0]: Create config $1 \"$2\"",
   "core.connection.delete.config.status": "[$0]: Delete config $1 \"$2\"",
   "core.connection.delete.timer.status": "[$0]: Delete timer $1 \"$2\"",
+  "core.connection.add.timer.status": "[$0]: Add timer $1 \"$2\"",
+  "core.connection.modify.timer.status": "[$0]: Modify timer $1 \"$2\"",
 
   "core.logs.delete.log.success": "[$0]: Delete task \"$1\" success",
   "core.logs.delete.log.failed": "[$0]: Can not find task \"$1\"",
@@ -68,6 +70,7 @@
   "ui.content.page.task.play": "Start the task",
   "ui.content.page.task.replay": "Enforce start the task",
   "ui.content.page.task.custom.play": "Start a custom task",
+  "ui.content.page.task.timer": "Create new timer",
   "ui.content.page.task.refresh": "Refresh",
   "ui.content.page.task.edit": "Edit current task config",
   "ui.content.page.task.create": "Create new config from current config",
@@ -112,5 +115,12 @@
 
   "ui.content.page.timer.save": "Save",
   "ui.content.page.timer.title.edit": "Edit current timer",
-  "ui.content.page.timer.title.create": "Create new timer"
+  "ui.content.page.timer.title.create": "Create new timer",
+  "ui.content.page.timer.label.name": "Name",
+  "ui.content.page.timer.label.delay": "Period (Minute)",
+  "ui.content.page.timer.label.ref": "Reference task",
+  "ui.content.page.timer.label.profile": "Custom profile",
+  "ui.content.page.timer.label.extra": "Addition task configurations",
+  "ui.content.page.timer.confirm.edit": "Change config \"$0\"?",
+  "ui.content.page.timer.confirm.create": "Create config \"$0\"?"
 }
