@@ -23,6 +23,10 @@ class Content {
             if (args) tabSet.openTaskTab(Array.from(args))
         })
 
+        ipcRenderer.on('ui-open-list-tab', ((_) => {
+            tabSet.openListTab()
+        }))
+
         ipcRenderer.on('ui-open-config-tab', ((event, args) => {
             if (args) tabSet.openConfigurationTab(args)
         }))

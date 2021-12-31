@@ -94,6 +94,16 @@ class TabSet {
         }
     }
 
+    public openListTab() {
+        let label = readLocal('ui.content.label.list')
+        if (this.map.has(label)) {
+            this.map.get(label)?.active()
+        } else {
+            let value = this.pageList.find(value => value?.label === label)
+            if (value) this.appendTabItem(value, true)
+        }
+    }
+
     public openConfigurationTab(args: any) {
         let label = readLocal('ui.content.label.configuration')
         if (this.map.has(label)) {
