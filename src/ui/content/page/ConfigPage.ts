@@ -17,6 +17,7 @@ class ConfigPage extends APage {
     protected profileObserver = ObserverInputField.fromString('')
     protected svnObserver = ObserverInputField.fromString('')
     protected otherObservers: Map<string, ObserverInputField<any>> = new Map()
+    protected otherKeys = new Set<string>()
 
     preSet(args: any): void {
         try {
@@ -32,6 +33,7 @@ class ConfigPage extends APage {
                     if (config.extraParas.svn) this.svnObserver = ObserverInputField.fromString(config.extraParas.svn)
                     parseMap(JSON.stringify(config.extraParas)).forEach((((value, key) => {
                         if (key != 'svn') {
+                            this.otherKeys.add(key)
                             this.otherObservers.set(key, ObserverInputField.fromString(value))
                         }
                     })))
@@ -150,6 +152,9 @@ class ConfigPage extends APage {
         extra.set('svn', this.svnObserver.get())
         this.otherObservers.forEach((value, key) => {
             extra.set(key, value.get())
+        })
+        this.otherKeys.forEach(value => {
+            if (!extra.has(value)) extra.set(value, '')
         })
         return {
             name: this.nameObserver.get(),
