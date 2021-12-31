@@ -100,7 +100,7 @@
   "ui.content.page.list.task.info.stop": "Stop",
   "ui.content.page.list.task.info.stop.confirm": "Stop task \"$0\"?",
   "ui.content.page.list.task.info.delete": "Delete",
-  "ui.content.page.list.task.info.delete.confirm": "Delete task \"$0\"?",
+  "ui.content.page.list.task.info.delete.confirm": "Delete task records \"$0\"?",
   "ui.content.page.list.task.log.label": "Task Logs",
   "ui.content.page.list.task.log.before": "Auto Update: ",
   "ui.content.page.list.task.log.interval.closed": "Closed",
