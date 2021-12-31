@@ -105,6 +105,17 @@ class TabSet {
         if (value) this.appendTabItem(value, true, args)
     }
 
+    public openTimerTab(args: any) {
+        let label = readLocal('ui.content.label.timer')
+        if (this.map.has(label)) {
+            let item = this.map.get(label)
+            if (item?.remove) item.remove()
+            this.map.delete(label)
+        }
+        let value = this.pageList.find(value => value?.label === label)
+        if (value) this.appendTabItem(value, true, args)
+    }
+
     protected appendTabItem(builder: PageBuilder, select: boolean = false, para: any = null) {
         let item = new TabItem()
         let label = builder.label!

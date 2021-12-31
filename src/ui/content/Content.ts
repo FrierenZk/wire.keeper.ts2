@@ -27,6 +27,10 @@ class Content {
             if (args) tabSet.openConfigurationTab(args)
         }))
 
+        ipcRenderer.on('ui-open-timer-tab', ((event, args) => {
+            if (args) tabSet.openTimerTab(args)
+        }))
+
         return fragment
     }
 }

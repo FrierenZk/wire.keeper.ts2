@@ -515,7 +515,13 @@ class ListPage extends APage {
             label: readLocal('ui.content.page.list.timer.info.edit'),
             icon: `<i class="bi bi-wrench"></i>`,
             callback: () => {
-                // TODO: open timer config tab
+                ipcRenderer.invoke('core-get-timer-config:' + host, timer).then(r => {
+                    ipcRenderer.invoke('core-call-self-event', 'ui-open-timer-tab', {
+                        host: host,
+                        mode: 'edit',
+                        config: JSON.parse(r)
+                    }).then()
+                })
             }
         }, {
             label: readLocal('ui.content.page.list.timer.info.delete'),

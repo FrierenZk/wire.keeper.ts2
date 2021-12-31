@@ -147,7 +147,13 @@ class TaskPage extends APage {
         let timer = document.createElement('div')
         timer.innerHTML = `<i class="bi bi-clock-history" style="font-size: 1em"></i>`
         timer.addEventListener('click', ev => {
-            //TODO
+            ipcRenderer.invoke('core-call-self-event', 'ui-open-timer-tab', {
+                host: this.selectHost,
+                config: {
+                    name: this.selectTask + '#' + (Math.random() * 10000).toFixed(),
+                    ref: this.selectTask
+                }
+            }).then()
             ev.cancelBubble
         })
 
