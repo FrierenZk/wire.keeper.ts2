@@ -4,12 +4,12 @@ import {ConnectionManager} from "./core/connection/ConnectionManager";
 import {cleanLogs} from "./core/logs";
 import {readLocal} from "./common/resources";
 
-const isDev = require('electron-is-dev');
-if (isDev) {
-    console.log('Running in development');
-} else {
-    // require('update-electron-app')()
-}
+// const isDev = require('electron-is-dev');
+// if (isDev) {
+//     console.log('Running in development');
+// } else {
+//     require('update-electron-app')()
+// }
 
 let connectionManager = new ConnectionManager()
 
