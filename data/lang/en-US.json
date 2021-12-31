@@ -113,6 +113,7 @@
   "ui.content.page.list.task.log.refresh": "Refresh",
   "ui.content.page.list.task.log.save": "Save",
   "ui.content.page.list.task.log.clear": "Clear",
+  "ui.content.page.list.timer.label": "Current timers",
   "ui.content.page.list.timer.info.label": "Timer Info",
   "ui.content.page.list.timer.info.edit": "Edit current timer config",
   "ui.content.page.list.timer.info.delete": "Delete current timer",

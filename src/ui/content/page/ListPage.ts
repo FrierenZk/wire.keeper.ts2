@@ -590,7 +590,7 @@ class ListPage extends APage {
         return hostCard.create(null)
     }
 
-    protected createItemListCard() {
+    protected createItemListCard(title: string) {
         let card = document.createElement('div')
         card.className = 'content-page-card row'
 
@@ -605,7 +605,7 @@ class ListPage extends APage {
         let text = document.createElement('div')
         label.appendChild(text)
         text.className = 'text-wrap fw-bolder text-decoration-underline user-select-none ps-4 pe-2'
-        text.textContent = readLocal('ui.content.page.list.task.label')
+        text.textContent = title
 
         let refreshBtn = document.createElement('div')
         label.appendChild(refreshBtn)
@@ -627,7 +627,7 @@ class ListPage extends APage {
     }
 
     protected createTask() {
-        let object = this.createItemListCard()
+        let object = this.createItemListCard(readLocal('ui.content.page.list.task.label'))
         let lastHost = ''
         let selected = ''
 
@@ -669,7 +669,7 @@ class ListPage extends APage {
     }
 
     protected createTimer() {
-        let object = this.createItemListCard()
+        let object = this.createItemListCard(readLocal('ui.content.page.list.timer.label'))
         let lastHost = ''
         let selected = ''
 
