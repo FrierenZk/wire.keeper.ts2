@@ -4,6 +4,7 @@
   "core.menu.connection.add": "Add Connection",
   "core.menu.connection.delete": "Delete Connection",
 
+  "core.menu.task": "Task",
   "core.menu.task.list": "Task List",
   "core.menu.task.config": "Create Task",
   "core.menu.task.timer": "Create Timer",

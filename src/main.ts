@@ -82,7 +82,7 @@ function createMenu(webContents: WebContents) {
             ]
         },
         {
-            label: 'Task',
+            label: readLocal('core.menu.task'),
             id: 'taskmenu',
             submenu: [
                 {label: readLocal('core.menu.task.list'), click: async () => webContents.send('ui-open-list-tab')},
