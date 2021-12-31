@@ -85,15 +85,16 @@ function createMenu(webContents: WebContents) {
             label: 'Task',
             id: 'taskmenu',
             submenu: [
-                {label: 'Add Task', id: 'addtask'},
-                {label: 'Stop Task', id: 'stoptask'},
-                {label: 'Add Check Out Task', id: 'cotask'},
-                {label: 'Refresh Task Status', id: 'retask'},
+                {label: readLocal('core.menu.task.list'), click: async () => webContents.send('ui-open-list-tab')},
                 {type: 'separator'},
-                {label: 'Auto Add Records', type: 'checkbox', checked: true, id: 'autoadd'},
-                {label: 'Clear Screen', id: 'clearsc'},
-                {label: 'Remove Record', id: 'removeit'},
-                {label: 'Remove All Records', id: 'removeall'}
+                {
+                    label: readLocal('core.menu.task.config'),
+                    click: async () => webContents.send('ui-open-config-tab', {mode: 'create'})
+                },
+                {
+                    label: readLocal('core.menu.task.timer'),
+                    click: async () => webContents.send('ui-open-timer-tab', {mode: 'create'})
+                },
             ]
         },
         {
