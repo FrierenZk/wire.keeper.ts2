@@ -18,6 +18,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .2em;
+    user-select: none;
 }
 
 .sidebar-btn-group {
